@@ -161,3 +161,8 @@ cython_debug/
 
 temp/
 .DS_Store
+
+fetuccini.sh.o*
+fetuccini.sh.e*
+darwen_run.sh.o*
+darwen_run.sh.e*
