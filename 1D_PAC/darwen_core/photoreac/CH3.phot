@@ -1,0 +1,12 @@
+ 1
+ CH3 + photon = 1CH2 + H
+!
+! wlth[nm]  sigma[cm-2]  yield(s)...
+!---------  -----------  -----------
+  215.0000  1.249E-17     0.00    
+  216.0000  3.483E-17     1.00    
+  217.0000  8.943E-18     0.00    
+!
+! photodissociation cross section given by Olivia Venot
+! see Venot et al (2012) for references
+! updated 2020

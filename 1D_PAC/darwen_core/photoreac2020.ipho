@@ -1,0 +1,38 @@
+!
+! photo cross section files used
+!
+ H2O.phot
+ CO2.phot
+ H2CO.phot
+ OH.phot
+ OOH.phot
+ H2O2.phot
+ CO.phot
+ H2.phot
+ HCO.phot
+ CH3OH.phot
+ CH3OOH.phot
+ CH2CO.phot
+ CH3CHO.phot
+ CH3.phot
+ CH4.phot
+ C2H.phot
+ C2H2.phot
+ C2H3.phot
+ C2H4.phot
+ C2H6.phot
+ N2.phot
+ NH2.phot
+ NH3.phot
+ N2H4.phot
+ HCN.phot
+ H2CN.phot
+ C2N2.phot
+ NO.phot
+ NO2.phot
+ NO3.phot
+ HNO2.phot
+ HNO3.phot
+ N2O.phot
+ N2O4.phot
+ N2O3.phot

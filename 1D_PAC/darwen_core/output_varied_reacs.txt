@@ -1,0 +1,605 @@
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_0_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_0.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 30s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 50s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  1m  3s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  1m 21s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m 41s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  2m  0s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  2m 31s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  3m  3s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  3m 35s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  4m 30s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  5m 20s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  5m 57s   err=  0.00    
+  time[s]=  100.       CPU=  0h  6m 33s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  7m 21s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  8m 16s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  9m  6s   err= 2.880E+03
+  time[s]= 1.369E+05   CPU=  0h  9m 54s   err=  82.4    
+  time[s]= 2.170E+05   CPU=  0h 10m 57s   err=  308.    
+  time[s]= 3.440E+05   CPU=  0h 11m 59s   err= 1.782E+03
+  time[s]= 5.451E+05   CPU=  0h 12m 52s   err= 1.502E+04
+  time[s]= 8.640E+05   CPU=  0h 13m 46s   err= 1.627E+03
+  time[s]= 1.369E+06   CPU=  0h 15m  0s   err=  201.    
+  time[s]= 2.170E+06   CPU=  0h 15m 44s   err=  24.7    
+  time[s]= 3.440E+06   CPU=  0h 16m 44s   err=  3.97    
+  time[s]= 5.451E+06   CPU=  0h 17m 40s   err= 0.612    
+  time[s]= 8.640E+06   CPU=  0h 18m 17s   err= 6.295E-02
+  time[s]= 1.369E+07   CPU=  0h 19m  4s   err= 1.843E-03
+  time[s]= 2.170E+07   CPU=  0h 19m 45s   err= 6.420E-05
+  time[s]= 3.440E+07   CPU=  0h 20m 23s   err= 1.818E-05
+  I- Steady state reached at t= 3.4E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_3_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_3.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 24s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 48s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  1m  3s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  1m 20s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m 48s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  2m 18s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  2m 48s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  3m 17s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  4m  1s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  4m 53s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  5m 33s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  6m  6s   err=  0.00    
+  time[s]=  100.       CPU=  0h  6m 46s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  7m 36s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  8m 24s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  9m 15s   err= 3.181E+03
+  time[s]= 1.369E+05   CPU=  0h 10m 19s   err=  104.    
+  time[s]= 2.170E+05   CPU=  0h 11m 30s   err=  482.    
+  time[s]= 3.440E+05   CPU=  0h 12m 30s   err= 3.133E+03
+  time[s]= 5.451E+05   CPU=  0h 13m 24s   err= 2.028E+04
+  time[s]= 8.640E+05   CPU=  0h 14m 36s   err= 9.318E+03
+  time[s]= 1.369E+06   CPU=  0h 15m 23s   err=  187.    
+  time[s]= 2.170E+06   CPU=  0h 16m 15s   err=  44.2    
+  time[s]= 3.440E+06   CPU=  0h 17m 10s   err=  6.77    
+  time[s]= 5.451E+06   CPU=  0h 17m 54s   err=  1.34    
+  time[s]= 8.640E+06   CPU=  0h 18m 38s   err= 0.292    
+  time[s]= 1.369E+07   CPU=  0h 19m 20s   err= 3.635E-02
+  time[s]= 2.170E+07   CPU=  0h 20m  0s   err= 1.421E-03
+  time[s]= 3.440E+07   CPU=  0h 20m 41s   err= 4.981E-05
+  time[s]= 5.451E+07   CPU=  0h 21m 26s   err= 1.434E-05
+  I- Steady state reached at t= 5.5E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_4_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_4.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 36s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 47s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  1m  1s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  1m 19s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m 32s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  2m  0s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  2m 29s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  3m  0s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  3m 36s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  4m 31s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  5m 21s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  5m 58s   err=  0.00    
+  time[s]=  100.       CPU=  0h  6m 34s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  7m 24s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  8m 10s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  9m  7s   err= 3.013E+03
+  time[s]= 1.369E+05   CPU=  0h  9m 52s   err=  92.1    
+  time[s]= 2.170E+05   CPU=  0h 10m 56s   err=  347.    
+  time[s]= 3.440E+05   CPU=  0h 12m 15s   err= 1.773E+03
+  time[s]= 5.451E+05   CPU=  0h 13m 17s   err= 9.139E+03
+  time[s]= 8.640E+05   CPU=  0h 14m 25s   err= 1.251E+04
+  time[s]= 1.369E+06   CPU=  0h 15m 15s   err=  291.    
+  time[s]= 2.170E+06   CPU=  0h 16m  6s   err=  88.6    
+  time[s]= 3.440E+06   CPU=  0h 17m 10s   err=  16.2    
+  time[s]= 5.451E+06   CPU=  0h 17m 54s   err=  2.19    
+  time[s]= 8.640E+06   CPU=  0h 18m 38s   err= 0.404    
+  time[s]= 1.369E+07   CPU=  0h 19m 26s   err= 5.070E-02
+  time[s]= 2.170E+07   CPU=  0h 20m  6s   err= 2.342E-03
+  time[s]= 3.440E+07   CPU=  0h 20m 51s   err= 1.050E-05
+  time[s]= 5.451E+07   CPU=  0h 21m 35s   err= 8.417E-06
+  I- Steady state reached at t= 5.5E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_1_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_1.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 31s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 42s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  0m 52s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  1m  7s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m 25s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  1m 43s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  2m  7s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  2m 36s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  3m 11s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  3m 51s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  4m 43s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  5m 32s   err=  0.00    
+  time[s]=  100.       CPU=  0h  6m  7s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  6m 50s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  7m 38s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  8m 34s   err= 3.239E+03
+  time[s]= 1.369E+05   CPU=  0h  9m 24s   err=  99.9    
+  time[s]= 2.170E+05   CPU=  0h 10m 29s   err=  414.    
+  time[s]= 3.440E+05   CPU=  0h 11m 35s   err= 2.553E+03
+  time[s]= 5.451E+05   CPU=  0h 12m 37s   err= 2.088E+04
+  time[s]= 8.640E+05   CPU=  0h 13m 30s   err= 6.617E+03
+  time[s]= 1.369E+06   CPU=  0h 14m 33s   err=  184.    
+  time[s]= 2.170E+06   CPU=  0h 15m 18s   err=  42.9    
+  time[s]= 3.440E+06   CPU=  0h 16m  8s   err=  5.32    
+  time[s]= 5.451E+06   CPU=  0h 17m  3s   err= 0.950    
+  time[s]= 8.640E+06   CPU=  0h 17m 48s   err= 0.148    
+  time[s]= 1.369E+07   CPU=  0h 18m 26s   err= 8.267E-03
+  time[s]= 2.170E+07   CPU=  0h 19m  8s   err= 2.748E-04
+  time[s]= 3.440E+07   CPU=  0h 19m 45s   err= 3.876E-05
+  time[s]= 5.451E+07   CPU=  0h 20m 24s   err= 1.362E-04
+  time[s]= 8.640E+07   CPU=  0h 21m 16s   err= 2.071E-04
+  time[s]= 1.369E+08   CPU=  0h 21m 56s   err= 8.814E-05
+  time[s]= 2.170E+08   CPU=  0h 22m 25s   err= 5.108E-05
+  I- Steady state reached at t= 2.2E+08s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+./multipac.sh: line 13: 45203 Killed: 9               ./pac $input_dir/$dir
+./multipac.sh: line 13: 45206 Killed: 9               ./pac $input_dir/$dir
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_7_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_7.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 22s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 32s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  0m 44s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  0m 55s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m  7s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  1m 16s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  1m 32s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  1m 50s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  2m 20s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  2m 52s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  3m 20s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  3m 47s   err=  0.00    
+  time[s]=  100.       CPU=  0h  4m 23s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  5m  3s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  5m 40s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  6m 13s   err= 2.983E+03
+  time[s]= 1.369E+05   CPU=  0h  6m 57s   err=  85.1    
+  time[s]= 2.170E+05   CPU=  0h  7m 39s   err=  355.    
+  time[s]= 3.440E+05   CPU=  0h  8m 22s   err= 2.088E+03
+  time[s]= 5.451E+05   CPU=  0h  8m 57s   err= 1.727E+04
+  time[s]= 8.640E+05   CPU=  0h  9m 36s   err= 1.390E+03
+  time[s]= 1.369E+06   CPU=  0h 10m 13s   err=  125.    
+  time[s]= 2.170E+06   CPU=  0h 10m 44s   err=  42.1    
+  time[s]= 3.440E+06   CPU=  0h 11m 12s   err=  5.19    
+  time[s]= 5.451E+06   CPU=  0h 11m 41s   err=  1.11    
+  time[s]= 8.640E+06   CPU=  0h 12m  7s   err= 0.197    
+  time[s]= 1.369E+07   CPU=  0h 12m 35s   err= 1.692E-02
+  time[s]= 2.170E+07   CPU=  0h 13m  0s   err= 5.974E-04
+  time[s]= 3.440E+07   CPU=  0h 13m 32s   err= 2.189E-05
+  time[s]= 5.451E+07   CPU=  0h 14m  7s   err= 6.989E-06
+  I- Steady state reached at t= 5.5E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_8_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_8.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 20s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 31s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  0m 42s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  0m 54s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m  7s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  1m 18s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  1m 38s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  2m  4s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  2m 34s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  3m  4s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  3m 26s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  3m 59s   err=  0.00    
+  time[s]=  100.       CPU=  0h  4m 37s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  5m 16s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  5m 53s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  6m 33s   err= 3.073E+03
+  time[s]= 1.369E+05   CPU=  0h  7m 15s   err=  94.6    
+  time[s]= 2.170E+05   CPU=  0h  7m 59s   err=  395.    
+  time[s]= 3.440E+05   CPU=  0h  8m 35s   err= 2.831E+03
+  time[s]= 5.451E+05   CPU=  0h  9m  8s   err= 3.062E+04
+  time[s]= 8.640E+05   CPU=  0h  9m 43s   err= 6.966E+03
+  time[s]= 1.369E+06   CPU=  0h 10m 20s   err=  172.    
+  time[s]= 2.170E+06   CPU=  0h 10m 52s   err=  33.4    
+  time[s]= 3.440E+06   CPU=  0h 11m 23s   err=  8.08    
+  time[s]= 5.451E+06   CPU=  0h 11m 52s   err=  1.39    
+  time[s]= 8.640E+06   CPU=  0h 12m 23s   err= 0.191    
+  time[s]= 1.369E+07   CPU=  0h 12m 52s   err= 1.271E-02
+  time[s]= 2.170E+07   CPU=  0h 13m 25s   err= 3.397E-04
+  time[s]= 3.440E+07   CPU=  0h 14m  5s   err= 9.585E-06
+  time[s]= 5.451E+07   CPU=  0h 14m 37s   err= 1.614E-06
+  I- Steady state reached at t= 5.5E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_9_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_9.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 28s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 38s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  0m 49s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  0m 58s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m 15s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  1m 27s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  1m 46s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  2m  3s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  2m 34s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  3m  6s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  3m 30s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  4m  6s   err=  0.00    
+  time[s]=  100.       CPU=  0h  4m 48s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  5m 22s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  6m  0s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  6m 52s   err= 2.187E+03
+  time[s]= 1.369E+05   CPU=  0h  7m 38s   err=  62.3    
+  time[s]= 2.170E+05   CPU=  0h  8m 23s   err=  226.    
+  time[s]= 3.440E+05   CPU=  0h  9m  2s   err= 1.138E+03
+  time[s]= 5.451E+05   CPU=  0h  9m 44s   err= 9.435E+03
+  time[s]= 8.640E+05   CPU=  0h 10m 28s   err= 3.387E+03
+  time[s]= 1.369E+06   CPU=  0h 11m  7s   err= 1.002E+03
+  time[s]= 2.170E+06   CPU=  0h 11m 46s   err=  266.    
+  time[s]= 3.440E+06   CPU=  0h 12m 20s   err=  8.57    
+  time[s]= 5.451E+06   CPU=  0h 12m 53s   err=  1.19    
+  time[s]= 8.640E+06   CPU=  0h 13m 33s   err= 0.180    
+  time[s]= 1.369E+07   CPU=  0h 14m 18s   err= 1.300E-02
+  time[s]= 2.170E+07   CPU=  0h 14m 55s   err= 4.493E-04
+  time[s]= 3.440E+07   CPU=  0h 15m 28s   err= 1.002E-05
+  time[s]= 5.451E+07   CPU=  0h 16m  1s   err= 9.063E-06
+  I- Steady state reached at t= 5.5E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
+Note: The following floating-point exceptions are signalling: IEEE_DIVIDE_BY_ZERO IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG
+
+---------------------------------------------------------
+                       PAC program                       
+           1D Planetary Atmosphere Chemistry             
+                    version March 2023                   
+
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+  I- Running model varied_reacs_6_hd2094.inp                                                       
+  W- Reaction warnings deactivated
+  I- Pressure range from   1.00E+07 to   0.10     with  100 height layers
+  I- DLSODES selected as numerical method
+  I- Reading species from venot2020.spec                               
+  I- Elements included:
+                        H 
+                        He
+                        C 
+                        N 
+                        O 
+  I- Data read for  107 species
+  I- Reading vertical structure
+     and initial abundances from HD209458b_sub.zab                            
+  I- Reading therm data from coeff_NASA_room_update2020.therm             
+  I- Reading reactions from varied_reacs_6.reac                          
+  I- 1903       reactions included in the model
+  I- Diffusion included
+  I- Photochemistry not included
+  I- Sensitivity analysis not included
+  I- RTOL for DLSODES is set to  1.00E-04
+
+  time[s]= 1.000E-10   CPU=  0h  0m 25s   err=  0.00    
+  time[s]= 1.000E-09   CPU=  0h  0m 35s   err=  0.00    
+  time[s]= 1.000E-08   CPU=  0h  0m 44s   err=  0.00    
+  time[s]= 1.000E-07   CPU=  0h  0m 54s   err=  0.00    
+  time[s]= 1.000E-06   CPU=  0h  1m  6s   err=  0.00    
+  time[s]= 1.000E-05   CPU=  0h  1m 15s   err=  0.00    
+  time[s]= 1.000E-04   CPU=  0h  1m 32s   err=  0.00    
+  time[s]= 1.000E-03   CPU=  0h  1m 54s   err=  0.00    
+  time[s]= 1.000E-02   CPU=  0h  2m 28s   err=  0.00    
+  time[s]= 0.100       CPU=  0h  3m  2s   err=  0.00    
+  time[s]=  1.00       CPU=  0h  3m 29s   err=  0.00    
+  time[s]=  10.0       CPU=  0h  4m  6s   err=  0.00    
+  time[s]=  100.       CPU=  0h  4m 48s   err=  0.00    
+  time[s]= 1.000E+03   CPU=  0h  5m 31s   err=  0.00    
+  time[s]= 1.000E+04   CPU=  0h  6m  5s   err=  0.00    
+  time[s]= 8.640E+04   CPU=  0h  6m 59s   err= 3.171E+03
+  time[s]= 1.369E+05   CPU=  0h  7m 51s   err=  98.8    
+  time[s]= 2.170E+05   CPU=  0h  8m 29s   err=  389.    
+  time[s]= 3.440E+05   CPU=  0h  9m  6s   err= 2.167E+03
+  time[s]= 5.451E+05   CPU=  0h  9m 44s   err= 3.474E+04
+  time[s]= 8.640E+05   CPU=  0h 10m 21s   err= 8.430E+03
+  time[s]= 1.369E+06   CPU=  0h 10m 59s   err=  165.    
+  time[s]= 2.170E+06   CPU=  0h 11m 31s   err=  37.9    
+  time[s]= 3.440E+06   CPU=  0h 12m  6s   err=  6.06    
+  time[s]= 5.451E+06   CPU=  0h 12m 38s   err=  1.48    
+  time[s]= 8.640E+06   CPU=  0h 13m  9s   err= 0.386    
+  time[s]= 1.369E+07   CPU=  0h 13m 55s   err= 5.916E-02
+  time[s]= 2.170E+07   CPU=  0h 14m 35s   err= 3.351E-03
+  time[s]= 3.440E+07   CPU=  0h 15m  3s   err= 1.294E-04
+  time[s]= 5.451E+07   CPU=  0h 15m 37s   err= 6.986E-05
+  time[s]= 8.640E+07   CPU=  0h 16m 13s   err= 5.659E-05
+  I- Steady state reached at t= 8.6E+07s
+            Calculations date: 26/ 4/2024
+
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+                     Calculations done                   
+                                                         
+                        Exiting PAC                      
+---------------------------------------------------------
+
