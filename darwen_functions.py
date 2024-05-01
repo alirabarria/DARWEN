@@ -529,4 +529,19 @@ def format_line(*args, total_length=32):
 
     return formatted_line
 
+from datetime import datetime, timedelta
+
+def get_yesterday(input_date):
+    # Convert the string date to a datetime object
+    date = datetime.strptime(input_date, "%Y-%m-%d")
+    # Subtract one day
+    yesterday = date - timedelta(days=1)
+    # Return the date in the same string format
+    return yesterday.strftime("%Y-%m-%d")
+
+# Example usage:
+yesterday_date = get_yesterday("2024-04-30")  # Output will be '2024-04-29'
+yesterday_date_first_of_month = get_yesterday("2024-05-01")  # Output will be '2024-04-30'
+
+
 

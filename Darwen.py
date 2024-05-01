@@ -351,7 +351,7 @@ class Darwen:
             if self._hide_output: self._out_file.flush()
         return
     
-    def schemes_heatmap(self, loss_thresholds = [.25, .5], apply_context=True, n_pops=13, init_str='',
+    def schemes_heatmap(self, loss_thresholds = [1, 2], apply_context=True, n_pops=13, init_str='',
                         planets=[], fname='genes.pdf', filter_by_save=False, use_real_losses=False,
                         colors=['royalblue', 'navy', 'lightblue'], cmap_color='Oranges',
                         legend_coords=(1., 1.1), adjust = [0.1, 0.92, 0.2, 0.85],
@@ -365,18 +365,29 @@ class Darwen:
             useful_df = self.master_df[self.master_df != 'Not saved']
         else:
             useful_df = self.master_df
+
         pop_df = useful_df[[init_str in aux for aux in useful_df['fname_key']]]
         if filter_by_date:
             today = str(date.today())
-            yest = today[:-1]+str(int(str(date.today())[-1])-1)
+            yest = get_yesterday(today)
             print (today, yest)
-            pop_df = useful_df[[aux == today or aux == yest for aux in pop_df['date']]]
+            pop_df = pop_df[[aux == today or aux == yest for aux in pop_df['date']]]
 
         for index, row in pop_df.iterrows():
             genes = row['genes']
-            better_genes = from_df_to_array(genes)
-            better_genes = np.array(better_genes).astype(int)
-            pop_df.at[index, 'genes'] = better_genes
+            if isinstance(genes, str):
+                genes=genes.replace(' ',',')
+
+            try:
+                better_genes = from_df_to_array(genes)
+                better_genes = np.array(better_genes).astype(int)
+                pop_df.at[index, 'genes'] = better_genes
+            except Exception as e:
+                print ('problem', index, genes)
+                print(repr(e))
+
+
+            
         
         
         genes_array = np.zeros((len(pop_df), 958))
@@ -390,6 +401,8 @@ class Darwen:
             mask_pop = [pop_str in aux for aux in pop_df['fname_key']]
             this_pop_genes = genes_df[mask_pop]
             this_pop_df = pop_df[mask_pop]
+            if len(this_pop_df) == 0:
+                break
             genes_av = this_pop_genes.mean().values
 
             if use_real_losses:
@@ -426,11 +439,11 @@ class Darwen:
         axes[1,1].set_visible(False)
         trans_genes = genes.transpose()
         
-        ax_loss.plot(range(n_pops), losses[:, 0], '*-', color=colors[0])
+        ax_loss.plot(range(len(losses)), losses[:, 0], '*-', color=colors[0])
 
         for l in range(len(loss_thresholds)):
             lt = loss_thresholds[l]
-            ax_count.plot(range(n_pops), losses[:, l+1]*100, '.-', color=colors[l+1], label=lt)
+            ax_count.plot(range(len(losses)), losses[:, l+1]*100, '.-', color=colors[l+1], label=lt)
         ax_count.legend(loc='upper left', bbox_to_anchor=legend_coords)
         ax_count.set_ylabel(r'$\% <$')
         ax_loss.set_ylabel(r'$\varphi$')
@@ -1252,16 +1265,17 @@ if __name__ == "__main__":
     else:
         init_population, n_fittest, n_population, n_iterations = 400, 20, 15, -1
 
-    GA = Darwen(mutation_rate=0.12, mutation_prob = .2, crossover_prob= 0.5, kill_rate=0.15, 
+    GA = Darwen(mutation_rate=0.15, mutation_prob =.3, crossover_prob= 0.5, kill_rate=0.2, 
                 mod_elitism=7, n_crossover=1e3, 
-                initial_mutation_rate=0.15, initial_kill_rate=0.1, 
+                initial_mutation_rate=0.2, initial_kill_rate=0.15, 
                 crossover_tries = 2,
-                molecs_low_limit=30, molecs_high_limit=55, weight=[1e-2, 1],  
+                molecs_low_limit=30, molecs_high_limit=53, weight=[1e-2, 1],  
                 pop_prefix=pop_prefix, search_schemes_first=True, planets=planets,
                 init_population=init_population, n_fittest=n_fittest, n_population=n_population,
                 initial_scheme_dir=initial_dir, full_dirs=full_dirs, templates=templates, 
                 max_curious_ids=3, update_ids_df=False, rosetta_path='1D_PAC/opt',
                 hide_output=True, photo_flag=photochem, single_planet_flag=len(planets)==1,
-                weight_by='molecs&logmajor', master_df_name='master_index_photo.csv')
+                weight_by='molecs&logmajor', master_df_name='master_index_photo.csv',
+                extended_range_flag=True)
     GA.clean_dir()
-    GA.run(n_iterations=-1, n_write=2, save_all_schemes=True, max_processes=40)
+    GA.run(n_iterations=-1, n_write=3, save_all_schemes=True, max_processes=40)
