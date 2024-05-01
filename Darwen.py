@@ -1275,7 +1275,7 @@ if __name__ == "__main__":
                 initial_scheme_dir=initial_dir, full_dirs=full_dirs, templates=templates, 
                 max_curious_ids=3, update_ids_df=True, rosetta_path='1D_PAC/opt',
                 hide_output=True, photo_flag=photochem, single_planet_flag=len(planets)==1,
-                weight_by='molecs&logmajor', master_df_name='master_index_photo.csv',
+                weight_by='molecs&logmajor', master_df_name='master_index.csv',
                 extended_range_flag=True)
     GA.clean_dir()
     GA.run(n_iterations=-1, n_write=3, save_all_schemes=True, max_processes=40)
