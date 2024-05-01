@@ -260,6 +260,7 @@ class Darwen:
             self.ids_df.to_csv(self._ids_df_path, index=False)
             print ('100 %', file=self._out_file)
         else:
+            self.ids_df = []
             print ('Failed to build ids df for planets:', planet_filter, file=self._out_file)
         if self._hide_output: self._out_file.flush()
 
