@@ -29,7 +29,7 @@ class Darwen:
                 curious_pool_ratio=1/20, filter_ids_mode='sum', plt_show=False, hide_output=False,
                 max_comb_crossover=200, photo_flag=False, single_planet_flag=False, curiosity_factor=1,
                 max_curious_ids=3, always_deterministic=True, n_before_wheel=2,
-                extended_range_flag=False):
+                extended_range_flag=False, add_per_delta=5):
         
         """
         Initializes the Darwen class, which is designed to optimize chemical reaction schemes using a genetic algorithm.
@@ -114,7 +114,8 @@ class Darwen:
                       'curiosity_factor': curiosity_factor, 'mod_curious':mod_curious,
                       'max_curious_ids':max_curious_ids, 'n_before_wheel': n_before_wheel,
                       'always_deterministic': always_deterministic,
-                      'extended_range_flag': extended_range_flag
+                      'extended_range_flag': extended_range_flag,
+                      'add_per_delta': add_per_delta
                       
                      }
         self._hide_output = hide_output
@@ -222,12 +223,14 @@ class Darwen:
 
         return
     
-    def construct_ids_df(self, loss_threshold=.7, all_mols_threshold=0, verbose=True, planet_filter=[]):
+    def construct_ids_df(self, loss_threshold=7, all_mols_threshold=0, verbose=True, planet_filter=[]):
         if not self.params['silent']:
             print ('Filling IDs DataFrame...', file=self._out_file)
             if self._hide_output: self._out_file.flush()
         self.schemes_dict = {}
         self.best_schemes_df = self.master_df[self.master_df.loss < loss_threshold]
+        if len(self.best_schemes_df) ==0:
+            print ('Maybe increase loss threshold?')
         if len(planet_filter) > 0:
             mask_planets = [np.any([aux_planet in aux_df for aux_planet in planet_filter]) for aux_df in self.best_schemes_df['planets']]
             self.best_schemes_df = self.best_schemes_df[mask_planets]
@@ -1030,6 +1033,7 @@ class Darwen:
             
             #Measuring performance
             pop_losses = []
+            delta_losses = []
             #value = <value_if_true> if <expression> else <value_if_false>
             molecs_to_measure = self.imp_molecs if self.measure_only_imp else []
                 
@@ -1039,8 +1043,11 @@ class Darwen:
                                                  merge_fn=self.params['weight_fn'], #min_is_better=self.min_is_better, deprecated
                                                 weight_factor=self.params['weight'], path=self.temp_path,
                                                abs_threshold = self.params['abs_threshold'])
+                delta_loss = scheme_i.parent_loss - scheme_i.loss
                 if scheme_loss!=None:
                     pop_losses.append(scheme_loss)
+                    delta_losses.append(delta_loss)
+
                 if (save_all_schemes and self._run_counter > 0) and not scheme_i._found:
                     self.master_df = scheme_i.save_scheme(self.master_df, templates=self._templates, 
                                                           imp_mols_flag=self.measure_only_imp, save_threshold=self.params['save_schemes_threshold'],
@@ -1053,6 +1060,8 @@ class Darwen:
                 if self._hide_output: self._out_file.flush()
                 
             n_fittest = self.params['n_fittest']
+            pop_losses = np.array(pop_losses)
+            delta_losses = np.array(delta_losses)
             
             #  Reinitializing losses
             self._run_counter=0
@@ -1061,18 +1070,25 @@ class Darwen:
             self.best_schemes = []
 
             if self.params['always_deterministic'] or iteration < self.params['n_before_wheel']:
+                sorted_inds = np.argsort(pop_losses)
+                if not self.min_is_better:
+                    sorted_inds = sorted_inds[::-1]
+                self.best_loss = pop_losses[sorted_inds[:n_fittest]]
+                id_best_schemes = sorted_inds[:n_fittest]
+
+                """
                 for i in range(len(pop_losses)):
                     combined_loss  = pop_losses[i]
                     if np.any(combined_loss < self.best_loss):
                         self.best_loss = np.append(self.best_loss, [combined_loss])
                         id_best_schemes = np.append(id_best_schemes, [i])
                         inds = np.argsort(self.best_loss)
-                        if not self.min_is_better:
-                            inds = inds[::-1]
+                        
                         self.best_loss = self.best_loss[inds]
                         id_best_schemes = id_best_schemes[inds]
                         self.best_loss = self.best_loss[:n_fittest]
                         id_best_schemes = id_best_schemes[:n_fittest]
+                """
 
             else: #weighted roulette wheel
                 sumfitness = np.sum(pop_losses)
@@ -1089,14 +1105,28 @@ class Darwen:
                     id_best_schemes[i_fit] = chosen_i
                     self.best_loss[i_fit] = pop_losses[chosen_i]
 
+            if self.params['add_per_delta'] > 0:
+                n_add = self.params['add_per_delta']
+                sorted_per_delta = np.argsort(delta_losses)[::-1]
+                print (len(sorted_per_delta))
+                k = 0
+                _id = 0
+                while (k < n_add and _id < len(sorted_per_delta)):
+                    if not sorted_per_delta[_id] in id_best_schemes:
+                        id_best_schemes = np.append(id_best_schemes, [sorted_per_delta[_id]])
+                        k+=1   
+                    _id+=1
+                print ('Added', n_add, 'from', _id)
+                    
+
                     
                     
             for id_ in id_best_schemes:
                 self.best_schemes.append(new_schemes[id_])
             
             if deallocate:    
-                new_schemes.clear()
-                pop_losses.clear()
+                del new_schemes
+                del pop_losses
                  
             if (np.any(np.max(self.best_loss) > self.old_losses) and iteration%self.params['mod_elitism']==0
                 ) and iteration > 0:
@@ -1228,7 +1258,7 @@ class Darwen:
 if __name__ == "__main__":
     photochem = True
     small_run = False
-    planets = ['hd2094', 'hd1897']
+    planets = ['hd2094'] #, 'hd1897'
 
     pop_prefix = datetime.now().strftime("pop%H%M-")
 
@@ -1266,11 +1296,10 @@ if __name__ == "__main__":
     else:
         init_population, n_fittest, n_population, n_iterations = 400, 20, 15, -1
 
-    GA = Darwen(mutation_rate=0.15, mutation_prob =.3, crossover_prob= 0.5, kill_rate=0.2, 
-                mod_elitism=7, n_crossover=1e3, 
+    GA = Darwen(mutation_rate=0.1, mutation_prob =.2, crossover_prob= 0.4, kill_rate=0.15, 
+                mod_elitism=4, n_crossover=1e3, 
                 initial_mutation_rate=0.2, initial_kill_rate=0.15, 
-                crossover_tries = 2,
-                molecs_low_limit=30, molecs_high_limit=53, weight=[1e-2, 1],  
+                molecs_low_limit=30, molecs_high_limit=50, weight=[1e-2, 1],  
                 pop_prefix=pop_prefix, search_schemes_first=True, planets=planets,
                 init_population=init_population, n_fittest=n_fittest, n_population=n_population,
                 initial_scheme_dir=initial_dir, full_dirs=full_dirs, templates=templates, 
