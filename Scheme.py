@@ -108,7 +108,7 @@ class Scheme:
     
     def save_scheme(self, master_df, out_path='', templates=[], imp_mols_flag=False, save_threshold=3,
                    weights=[], single_planet_flag=False, photo_flag=False, merge_fn=np.max, force_save=False,
-                   change_fname_key=True, directories=[], model_dict={}):
+                   change_fname_key=True, directories=[], model_dict={}, force_ind=-1):
         """
         Saves the scheme to disk if it meets certain criteria, such as having a loss below a specific threshold, and updates the master DataFrame with the scheme's details.
 
@@ -136,15 +136,19 @@ class Scheme:
                 path_to_scheme = Path(str(path_to_scheme) + '_' + str(int(repeated))).resolve()
 
         if not found or force_save:
-            if merge_fn(self.losses) < save_threshold:
+            if merge_fn(self.losses) < save_threshold or force_save:
                 path_to_scheme.parent.mkdir(parents=True, exist_ok=True)
                 move_files_with_string(str(self._out_path), str(path_to_scheme), self._fname_key+'_', copy=True)
                 self._write_scheme(out_path=path_to_scheme, write_ids=True, templates=templates, imp_mols_flag=imp_mols_flag, check_dir=False)
             else:
                 path_to_scheme = 'Not saved'
             delta_loss = self.parent_loss - self.loss
+            if force_ind == -1:
+                ind_df = len(master_df)
+            else:
+                ind_df = force_ind
             #                      ['mols_len', 'ids_len' 'ids', 'molecs',   
-            master_df.loc[len(master_df)]=[len(self.molecs), len(self.ids), self.ids.tolist() , self.molecs.tolist(), 
+            master_df.loc[ind_df]=[len(self.molecs), len(self.ids), self.ids.tolist() , self.molecs.tolist(), 
                                     # 'loss', 'delta_loss', 'losses',       
                                     self.loss, delta_loss, self.losses, 
                                     # 'abs_losses', 'all_rel_losses', 'major_loss',  'directory',     

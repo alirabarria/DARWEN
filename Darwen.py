@@ -29,7 +29,7 @@ class Darwen:
                 curious_pool_ratio=1/20, filter_ids_mode='sum', plt_show=False, hide_output=False,
                 max_comb_crossover=200, photo_flag=False, single_planet_flag=False, curiosity_factor=1,
                 max_curious_ids=3, always_deterministic=True, n_before_wheel=2,
-                extended_range_flag=False, add_per_delta=5):
+                extended_range_flag=False, add_per_delta=5, change_imp_molecs_flag=False):
         
         """
         Initializes the Darwen class, which is designed to optimize chemical reaction schemes using a genetic algorithm.
@@ -115,7 +115,8 @@ class Darwen:
                       'max_curious_ids':max_curious_ids, 'n_before_wheel': n_before_wheel,
                       'always_deterministic': always_deterministic,
                       'extended_range_flag': extended_range_flag,
-                      'add_per_delta': add_per_delta
+                      'add_per_delta': add_per_delta, 
+                      'change_imp_molecs_flag': change_imp_molecs_flag
                       
                      }
         self._hide_output = hide_output
@@ -355,9 +356,9 @@ class Darwen:
             if self._hide_output: self._out_file.flush()
         return
     
-    def schemes_heatmap(self, loss_thresholds = [1, 2], apply_context=True, n_pops=13, init_str='',
+    def schemes_heatmap(self, loss_thresholds = [.5, 1, 2], apply_context=True, n_pops=13, init_str='',
                         planets=[], fname='genes.pdf', filter_by_save=False, use_real_losses=False,
-                        colors=['royalblue', 'navy', 'lightblue'], cmap_color='Oranges',
+                        colors=['royalblue', 'navy', 'blue', 'lightblue'], cmap_color='Oranges',
                         legend_coords=(1., 1.1), adjust = [0.1, 0.92, 0.2, 0.85],
                         gridspec_kw={"height_ratios":[.1, .1, 1], "width_ratios": [1,.05],
                                     "wspace":0.05, "hspace":0.05},
@@ -1116,7 +1117,6 @@ class Darwen:
                         id_best_schemes = np.append(id_best_schemes, [sorted_per_delta[_id]])
                         k+=1   
                     _id+=1
-                print ('Added', n_add, 'from', _id)
                     
 
                     
@@ -1269,8 +1269,8 @@ if __name__ == "__main__":
     }
 
     photo_dict = {
-        'hd2094': ['1D_PAC/hd2094_photo_extended.inp', '1D_PAC/hd2094_photo_extended'],
-        'hd1897': ['1D_PAC/hd1897_photo_extended.inp', '1D_PAC/hd1897_photo_extended'],
+        'hd2094': ['1D_PAC/hd2094_photo.inp', '1D_PAC/hd2094_photo'],
+        'hd1897': ['1D_PAC/hd1897_photo.inp', '1D_PAC/hd1897_photo'],
         'wasp107': ['1D_PAC/wasp107_photo.inp', '1D_PAC/wasp107_photo']
     }
 
@@ -1289,12 +1289,12 @@ if __name__ == "__main__":
     if photochem:
         initial_dir = '1D_PAC/pca_photo'   
     else:
-        initial_dir = '1D_PAC/pca_multi_extended'
+        initial_dir = '1D_PAC/pca_photo'
 
     if small_run:
         init_population, n_fittest, n_population, n_iterations = 25, 5, 5, 5
     else:
-        init_population, n_fittest, n_population, n_iterations = 400, 20, 15, -1
+        init_population, n_fittest, n_add, n_population, n_iterations = 400, 20, 2, 15, -1
 
     GA = Darwen(mutation_rate=0.1, mutation_prob =.2, crossover_prob= 0.4, kill_rate=0.15, 
                 mod_elitism=4, n_crossover=1e3, 
@@ -1306,6 +1306,6 @@ if __name__ == "__main__":
                 max_curious_ids=3, update_ids_df=True, rosetta_path='1D_PAC/opt',
                 hide_output=True, photo_flag=photochem, single_planet_flag=len(planets)==1,
                 weight_by='molecs&logmajor', master_df_name='master_index.csv',
-                extended_range_flag=True)
+                extended_range_flag=False, add_per_delta=n_add)
     GA.clean_dir()
     GA.run(n_iterations=-1, n_write=3, save_all_schemes=True, max_processes=40)
