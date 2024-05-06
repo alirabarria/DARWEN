@@ -1,0 +1,213 @@
+ 3CH2 + H = CH + H2                                 9.97E-12     0.00     -905   -3 :                    C   : 
+ 3CH2 + C = C2H + H                                 8.31E-11     0.00        0   -3 :                    B   : 
+ 3CH2 + 3CH2 = C2H2 + H + H                         1.99E-10     0.00      402   -3 :                    B   : 
+ CH3 + H = 1CH2 + H2                                9.97E-11     0.00     7541   -3 :                    D   : 
+ CH3 + CH = C2H3 + H                                4.98E-11     0.00        0   -3 :                    B   : 
+ CH3 + 1CH2 = C2H4 + H                              2.99E-11     0.00        0   -3 :                    B   : 
+ CH3 + 3CH2 = C2H4 + H                              6.98E-11     0.00        0   -3 :                    B   : 
+ CH3 + C = C2H2 + H                                 8.31E-11     0.00        0   -3 :                    B   : 
+ CH3 + CH3 = C2H5 + H                               4.98E-11     0.00     6787   -3 :                    C   : 
+ CH3 + CH3 = C2H4 + H2                              3.49E-10     0.00     9703   -3 :                    B   : 
+ CH4 + H = CH3 + H2                                 5.83E-13     3.00     4022   -3 :                    A   : 
+ CH4 + CH = C2H4 + H                                4.98E-11     0.00     -201   -3 :                    D   : 
+ C2H2 + H = C2H + H2                                1.10E-10     0.00    13930   -3 :                    D   : 
+ C2H3 + H = C2H2 + H2                               1.99E-11     0.00        0   -3 :                    B   : 
+ C2H5 + H = C2H4 + H2                               2.99E-12     0.00        0   -3 :                    B   : 
+ C2H5 + H = C2H6                                    5.98E-11     0.00        0 -802 :                    B   : k_infinite
+ C2H6 + H = C2H5 + H2                               1.21E-11     1.50     3720   -3 :                    A   : 
+ O3P + H2 = OH + H                                  3.48E-13     2.67     3117   -3 :                    B   : 
+ O3P + 3CH2 = CO + H + H                            1.20E-10     0.00        0   -3 :                    A   : 
+ O3P + 3CH2 = CO + H2                               7.97E-11     0.00        0   -3 :                    A   : 
+ O3P + CH3 = H2CO + H                               1.40E-10     0.00        0   -3 :                    A   : 
+ O3P + C2H2 = 3CH2 + CO                             5.74E-13     2.10      804   -3 :                    A   : 
+ O3P + C2H2 = CHCO + H                              1.34E-12     2.10      804   -3 :                    A   : 
+ OH + H2 = H + H2O                                  1.53E-12     1.60     1659   -3 :                    A   : 
+ OH + C = CO + H                                    8.31E-11     0.00        0   -3 :                    B   : 
+ OH + CH = HCO + H                                  4.98E-11     0.00        0   -3 :                    B   : 
+ OH + 1CH2 = H2CO + H                               4.98E-11     0.00        0   -3 :                    B   : 
+ OH + 3CH2 = H2CO + H                               2.99E-11     0.00        0   -3 :                    B   : 
+ OH + CH3 = H2CO + H2                               2.59E-13    -0.53     5430   -3 :                    D   : 
+ OH + C2H2 = CH2CO + H                              5.13E-17     4.50     -502   -3 :                    A   : 
+ OH + C2H2 = CH3 + CO                               6.46E-18     4.00    -1006   -3 :                    A   : 
+ OH + C2H4 = CH3 + H2CO                             3.32E-12     0.00      452   -3 :                    B   : 
+ CO + OH = CO2 + H                                  2.59E-16     1.50     -251   -3 :                    A   : 
+ HCO + H = H2 + CO                                  1.50E-10     0.00        0   -3 :                    A   : 
+ CO2 + 3CH2 = H2CO + CO                             3.82E-14     0.00        0   -3 :                    A   : 
+ N2 + O3P = NO + N4S                                2.99E-10     0.00    38260   -3 :                    A   : 
+ NH + N4S = N2 + H                                  2.59E-11     0.50        0   -3 :                    A   : 
+ NH + NH = NNH + H                                  8.47E-11     0.00        0   -3 :                    A   : 
+ NH2 + N4S = N2 + H + H                             1.15E-10     0.00        0   -3 :                    A   : 
+ NH2 + NH = N2H2 + H                                1.44E-10    -0.50        0   -3 :                    A   : 
+ NH2 + NH2 = N2H2 + H2                              1.66E-11     0.00      754   -3 :                    A   : 
+ NH3 + H = NH2 + H2                                 7.93E-13     2.40     4987   -3 :                    A   : 
+ NH3 + NH2 = N2H3 + H2                              2.88E-12     0.50    10860   -3 :                    A   : 
+ N4S + OH = NO + H                                  4.65E-11     0.00        0   -3 :                    A   : 
+ N2O + H = NH + NO                                  4.96E-07    -2.16    18680   -3 :                    A   : 
+ HNO + H = NO + H2                                  4.50E-11     0.72      329   -3 :                    A   : 
+ NH2 + NO = NNH + OH                                4.30E-13     0.42     -409   -3 :                    A   : 
+ NH2 + NO = N2 + H2O                                1.25E-10    -2.65      632   -3 :                    A   : 
+ NH + OH = HNO + H                                  3.32E-11     0.00        0   -3 :                    A   : 
+ NH + OH = NO + H2                                  3.32E-11     0.00        0   -3 :                    A   : 
+ NH + H2O = HNO + H2                                3.32E-11     0.00     6963   -3 :                    A   : 
+ NH + NO = N2 + OH                                  5.85E-12    -0.50       60   -3 :                    A   : 
+ HOCN + H = NCO + H2                                2.99E-12     2.00     1006   -3 :                    A   : 
+ CH + N2 = HCN + N4S                                2.01E-13     1.42    10420   -3 :                    A   : 
+ C + N2 = CN + N4S                                  8.64E-11     0.00    22470   -3 :                    A   : 
+ 3CH2 + N2 = HCN + NH                               7.97E-12     0.00    18020   -3 :                    A   : 
+ C + NO = CN + O3P                                  3.32E-11     0.00        0   -3 :                    A   : 
+ 3CH2 + N4S = HCN + H                               8.31E-11     0.00        0   -3 :                    A   : 
+ CH + N4S = CN + H                                  1.66E-10    -0.09        0   -3 :                    A   : 
+ N4S + CO2 = NO + CO                                3.16E-13     0.00     1709   -3 :                    A   : 
+ CH3 + N4S = H2CN + H                               1.18E-10     0.00        0   -3 :                    A   : 
+ CH3 + N4S = HCNH + H                               3.87E-12     0.52      184   -3 :                    A   : 
+ CN + H2O = HOCN + H                                6.65E-12     0.00     3720   -3 :                    A   : 
+ OH + HCN = HOCN + H                                6.23E-14     2.45     6094   -3 :                    A   : 
+ OH + HCN = HNCO + H                                4.32E-18     4.71     -246   -3 :                    A   : 
+ OH + HCN = NH2 + CO                                1.07E-13     0.00     5882   -3 :                    A   : 
+ HOCN + H = HNCO + H                                1.66E-11     0.00        0   -3 :                    A   : 
+ HCN + O3P = NCO + H                                7.94E-14     2.64     2504   -3 :                    A   : 
+ HCN + O3P = NH + CO                                1.99E-14     2.64     2504   -3 :                    A   : 
+ CN + O3P = CO + N4S                                4.35E-11     0.46      362   -3 :                    A   : 
+ CN + OH = NCO + H                                  6.65E-11     0.00        0   -3 :                    A   : 
+ HNCO + H = H2 + NCO                                2.73E-13     2.41     6184   -3 :                    A   : 
+ HNCO + H = NH2 + CO                                8.81E-14     2.49     1176   -3 :                    A   : 
+ NCO + H = NH + CO                                  8.90E-11     0.00        0   -3 :                    A   : 
+ C + NO = CO + N4S                                  4.65E-11     0.00        0   -3 :                    A   : 
+ CH3 + N4S = HCN + H2                               1.18E-11     0.00        0   -3 :                    A   : 
+ NH + NH = N2 + H + H                               4.15E-11     0.00        0   -3 :                    A   : 
+ CH3OH + H = CH3O + H2                              7.26E-13     2.56     5178   -3 :                    C   : 
+ CH3OH + H = CH2OH + H2                             1.06E-12     2.55     2735   -3 :                    C   : 
+ CH2OH + H = H2CO + H2                              9.97E-12     0.00        0   -3 :                    B   : 
+ CH3O + H = H2CO + H2                               3.32E-11     0.00        0   -3 :                    B   : 
+ HCOH + H = H2CO + H                                3.32E-10     0.00        0   -3 :                    C   : 
+ H2O + CH = CH2OH                                   9.47E-12     0.00     -402 -802 :                    D   : k_infinite
+ H2O + 1CH2 = CH3OH                                 2.99E-11     0.00        0 -802 :                    B   : k_infinite
+ N2D + H2O = H2 + NO                                1.33E-11     0.00        0   -3 :                    C   : 
+ CH3 + OH = HCOH + H2                               1.28E-13     0.79    -1531  -35 :                    C   : 1.013E-02
+                                                    1.88E-13     0.63    -1343                               : 1.013E-01
+                                                    6.29E-13     0.16     -688                               : 1.013E+00
+                                                    8.12E-10    -2.64    -3227                               : 1.013E+01
+                                                    1.35E-09    -2.40    -4851                               : 1.013E+02
+ CH3 + OH = CH2OH + H                               6.61E-12     0.96     1617  -35 :                    C   : 1.013E-02
+                                                    6.77E-12     0.95     1632                               : 1.013E-01
+                                                    9.00E-12     0.83     1794                               : 1.013E+00
+                                                    5.44E-11     0.13     2839                               : 1.013E+01
+                                                    2.06E-10    -0.19     4328                               : 1.013E+02
+ CH3 + CH3 = C2H6                                   4.58E-24    -7.00     1388 -800 :                    B   : k_0
+                                                    6.00E-11     0.00        0                               : k_infinite
+                   0.620   73.0      1.180E+03  1.000E+18  9                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      O2               0.400                        : third body M and enhancement factor
+                                      CO               0.750                        : third body M and enhancement factor
+                                      CO2              1.500                        : third body M and enhancement factor
+                                      H2O              6.500                        : third body M and enhancement factor
+                                      CH4              3.000                        : third body M and enhancement factor
+                                      C2H6             3.000                        : third body M and enhancement factor
+                                      Ar               0.350                        : third body M and enhancement factor
+                                      N2               0.400                        : third body M and enhancement factor
+                                      He               0.350                        : third body M and enhancement factor
+ H + CH3 = CH4                                      1.35E-28    -1.80        0 -800 :                    B   : k_0
+                                                    2.77E-10     0.00        0                               : k_infinite
+                   0.370  3.315E+03   61.0      1.000E+18  9                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      O2               0.400                        : third body M and enhancement factor
+                                      CO               0.750                        : third body M and enhancement factor
+                                      CO2              1.500                        : third body M and enhancement factor
+                                      H2O              6.500                        : third body M and enhancement factor
+                                      CH4              0.000                        : third body M and enhancement factor
+                                      C2H6             3.000                        : third body M and enhancement factor
+                                      Ar               0.350                        : third body M and enhancement factor
+                                      N2               0.400                        : third body M and enhancement factor
+                                      He               0.350                        : third body M and enhancement factor
+ H + NO = HNO                                       5.11E-32    -1.75        0 -800 :                    A   : k_0
+                                                    2.44E-10    -0.41        0                               : k_infinite
+                   0.000   0.00       0.00       0.00      5                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      O2               1.500                        : third body M and enhancement factor
+                                      CO2              3.000                        : third body M and enhancement factor
+                                      H2O             10.000                        : third body M and enhancement factor
+                                      H2               2.000                        : third body M and enhancement factor
+                                      Ar               0.750                        : third body M and enhancement factor
+ H2CO + H = CH2OH                                   4.03E-28    -4.82     3283 -800 :                    C   : k_0
+                                                    1.20E-11     0.45     1810                               : k_infinite
+                   0.719   103.      1.291E+03  4.160E+03  6                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      CO               1.500                        : third body M and enhancement factor
+                                      CO2              2.000                        : third body M and enhancement factor
+                                      H2O              6.000                        : third body M and enhancement factor
+                                      CH4              2.000                        : third body M and enhancement factor
+                                      H2               2.000                        : third body M and enhancement factor
+                                      C2H6             3.000                        : third body M and enhancement factor
+ C2H3 = C2H2 + H                                    0.52        -7.50    22900 -900 :                    B   : k_0
+                                                    2.00E+14     0.00    20010                               : k_infinite
+                   0.350   1.00      1.000E+08  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      O2               0.400                        : third body M and enhancement factor
+                                      CO               0.750                        : third body M and enhancement factor
+                                      CO2              1.500                        : third body M and enhancement factor
+                                      H2O              6.500                        : third body M and enhancement factor
+                                      CH4              3.000                        : third body M and enhancement factor
+                                      Ar               0.350                        : third body M and enhancement factor
+                                      N2               0.400                        : third body M and enhancement factor
+                                      He               0.350                        : third body M and enhancement factor
+ C2H5 = C2H4 + H                                    5.65E-07     0.00    16790 -900 :                    B   : k_0
+                                                    8.20E+13     0.00    20110                               : k_infinite
+                   0.750   97.0      1.379E+03  1.000E+18  9                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      O2               0.400                        : third body M and enhancement factor
+                                      CO               0.750                        : third body M and enhancement factor
+                                      CO2              1.500                        : third body M and enhancement factor
+                                      H2O              6.500                        : third body M and enhancement factor
+                                      CH4              3.000                        : third body M and enhancement factor
+                                      C2H6             3.000                        : third body M and enhancement factor
+                                      Ar               0.350                        : third body M and enhancement factor
+                                      N2               0.400                        : third body M and enhancement factor
+                                      He               0.350                        : third body M and enhancement factor
+ CH3OH = CH3 + OH                                   1.17E+02    -7.00    49270 -900 :                    C   : k_0
+                                                    6.24E+16    -0.61    46530                               : k_infinite
+                  -0.475  3.558E+04  1.116E+03  9.023E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+ CH3OH = 3CH2 + H2O                                 9.92E+02    -8.23    49980 -900 :                    C   : k_0
+                                                    9.44E+15    -1.02    46110                               : k_infinite
+                   2.545  3.290E+03  4.732E+04  4.711E+04  0                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+ CH3O = H2CO + H                                    1.15E-06    -3.00    12220 -900 :                    C   : k_0
+                                                    6.80E+13     0.00    13160                               : k_infinite
+                   0.900  2.500E+03  1.300E+03  1.000E+99  6                                                 : Troe parameters: a, T***, T*, T**, (No of M)
+                                      CO               1.500                        : third body M and enhancement factor
+                                      CO2              2.000                        : third body M and enhancement factor
+                                      H2O              6.000                        : third body M and enhancement factor
+                                      CH4              2.000                        : third body M and enhancement factor
+                                      H2               2.000                        : third body M and enhancement factor
+                                      C2H6             3.000                        : third body M and enhancement factor
+ H + H = H2                                         1.72E-32    -1.00        0 -801 :                    B   : k_0
+                                                 10                                                          : (No of M)
+                                      O2               0.400                        : third body M and enhancement factor
+                                      CO               0.750                        : third body M and enhancement factor
+                                      CO2              1.500                        : third body M and enhancement factor
+                                      H2O              6.500                        : third body M and enhancement factor
+                                      CH4              3.000                        : third body M and enhancement factor
+                                      H2               2.000                        : third body M and enhancement factor
+                                      C2H6             3.000                        : third body M and enhancement factor
+                                      Ar               0.350                        : third body M and enhancement factor
+                                      N2               0.400                        : third body M and enhancement factor
+                                      He               0.350                        : third body M and enhancement factor
+ NNH = N2 + H                                       2.88E-10     0.50     1538 -901 :                    A   : k_0
+                                                  0                                                          : (No of M)
+ N2H3 = N2H2 + H                                    1.66E-08     0.00    18600 -901 :                    A   : k_0
+                                                  0                                                          : (No of M)
+ HCO = H + CO                                       1.05E-09    -1.00     8547 -901 :                    B   : k_0
+                                                  4                                                          : (No of M)
+                                      CO               1.500                        : third body M and enhancement factor
+                                      CO2              2.000                        : third body M and enhancement factor
+                                      H2O              6.000                        : third body M and enhancement factor
+                                      H2               2.000                        : third body M and enhancement factor
+ N2H2 = NNH + H                                     8.31E-08     0.00    25140 -901 :                    A   : k_0
+                                                  4                                                          : (No of M)
+                                      O2               2.000                        : third body M and enhancement factor
+                                      H2O             15.000                        : third body M and enhancement factor
+                                      H2               2.000                        : third body M and enhancement factor
+                                      N2               2.000                        : third body M and enhancement factor
+ 1CH2 = 3CH2                                        2.51E-11     0.00        0 -901 :                    A   : k_0
+                                                  9                                                          : (No of M)
+                                      O2               0.400                        : third body M and enhancement factor
+                                      CO               0.750                        : third body M and enhancement factor
+                                      CO2              1.500                        : third body M and enhancement factor
+                                      H2O              6.500                        : third body M and enhancement factor
+                                      CH4              0.480                        : third body M and enhancement factor
+                                      Ar               0.240                        : third body M and enhancement factor
+                                      N2               0.400                        : third body M and enhancement factor
+                                      He               0.350                        : third body M and enhancement factor
+                                      C2H4             1.600                        : third body M and enhancement factor
