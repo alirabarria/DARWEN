@@ -58,7 +58,7 @@ def out_to_dfs(dir_, error_purposes=False, file_key='_out', header_keyword='!', 
 
     if len(matching_files)==0:
         if error_purposes:
-            return None, errs
+            return None, errs, 1e5
         else:
             return dfs, times, errs, irate, rvirate, rtype
 
@@ -108,7 +108,7 @@ def out_to_dfs(dir_, error_purposes=False, file_key='_out', header_keyword='!', 
             dfs.append(df)
 
     if error_purposes:
-        return dfs[np.argmin(errs)], cons_err
+        return dfs[np.argmin(errs)], cons_err, np.min(errs)
     else:
         return dfs, np.array(times), np.array(errs), np.array(irate), np.array(rvirate), np.array(rtype)
 

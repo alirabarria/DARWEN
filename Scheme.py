@@ -273,7 +273,7 @@ class Scheme:
         if len(ideal_dirs) > 0:
             ideal_dfs_array = []
             for ideal_dir in ideal_dirs:
-                ideal_df, _ = out_to_dfs(dir_=ideal_dir, error_purposes=True, return_only_mols=False)
+                ideal_df, _, _ = out_to_dfs(dir_=ideal_dir, error_purposes=True, return_only_mols=False)
                 ideal_dfs_array.append(ideal_df)
 
 
@@ -288,10 +288,10 @@ class Scheme:
 
                 if len(insert_dirs) > 0:
                     inserted_dir = insert_dirs[ideal_i]
-                    df_to_test, cons_err = out_to_dfs(dir_= inserted_dir, error_purposes=True, return_only_mols=False)
+                    df_to_test, cons_err, _err = out_to_dfs(dir_= inserted_dir, error_purposes=True, return_only_mols=False)
                     aux_dfs.append(df_to_test)
                 else:
-                    df_to_test, cons_err = out_to_dfs(dir_=path, error_purposes=True, file_key=self._fname_key+'_'+self._planets[ideal_i]+'_out', 
+                    df_to_test, cons_err, _err = out_to_dfs(dir_=path, error_purposes=True, file_key=self._fname_key+'_'+self._planets[ideal_i]+'_out', 
                                                   return_only_mols=True)
                     
 

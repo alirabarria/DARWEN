@@ -176,7 +176,7 @@ class Darwen:
         assert len(self.params['templates']) == len(self.params['full_dirs'])
 
         for dir_ in self.params['full_dirs']:
-            ideal_df, cons_err= out_to_dfs(dir_=dir_, error_purposes=True)
+            ideal_df, cons_err, _err = out_to_dfs(dir_=dir_, error_purposes=True)
             if cons_err:
                 print('Are you sure the loss directory is ideal?', file=self._out_file)
                 if self._hide_output: self._out_file.flush()
