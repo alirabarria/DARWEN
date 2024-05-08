@@ -1,7 +1,7 @@
-photoscheme.spec                     ! species file for pac_tstar4250g1000teff1200
+venot2020.spec                     ! species file for pac_tstar4250g1000teff1200
 ace_tstar4250g1000teff1200_0.zab                      ! z,p,T (initial abundances) file
 2  0  0                          ! No reaction files, (0/1) not/use iondip treatment
-photoscheme.reac              ! reaction file
+venot2020.reac              ! reaction file
 coeff_NASA_room_update2020.therm   ! reaction file
 pac_tstar4250g1000teff1200.eddy 0                        ! eddy diffusion coefficient profile file
 MUSCLES-HD85512-K6.star                           ! stellar spectrum file

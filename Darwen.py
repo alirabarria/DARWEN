@@ -363,6 +363,7 @@ class Darwen:
                         gridspec_kw={"height_ratios":[.1, .1, 1], "width_ratios": [1,.05],
                                     "wspace":0.05, "hspace":0.05},
                                     filter_by_date=True):
+        plt.close('all')
         import seaborn as sns
         if apply_context:   
             sns.set_context('talk')
@@ -474,6 +475,7 @@ class Darwen:
                     plot_threshold=-1, colors=['coral', 'gray', 'darkgreen', 'green']):
         if plot_threshold == -1:
             plot_threshold = big_loss_def
+        plt.close('all')
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=figsize, sharex=True)
         best_per_mol = {}
         for l in range(min_len, max_len+1):
@@ -905,7 +907,7 @@ class Darwen:
 
     
     
-    def _write_schemes(self, reset_init=True, opt_id='', init_str='opt', write_all_best=True, loss_threshold=3):
+    def _write_schemes(self, reset_init=True, opt_id='', init_str='opt', write_all_best=True, loss_threshold=1.5):
         print ('Writing best schemes', file=self._out_file)
         if self._hide_output: self._out_file.flush()
         ind_best_scheme = -1
@@ -1258,7 +1260,7 @@ class Darwen:
 if __name__ == "__main__":
     photochem = True
     small_run = False
-    planets = ['hd2094'] #, 'hd1897'
+    planets = ['hd2094', 'hd1897'] 
 
     pop_prefix = datetime.now().strftime("pop%H%M-")
 
@@ -1287,18 +1289,18 @@ if __name__ == "__main__":
     pop_prefix = datetime.now().strftime("pop%H%M-")
 
     if photochem:
-        initial_dir = '1D_PAC/pca_photo'   
+        initial_dir = '1D_PAC/opt0705_photo'   
     else:
-        initial_dir = '1D_PAC/pca_photo'
+        initial_dir = '1D_PAC/pca_alone46'
 
     if small_run:
         init_population, n_fittest, n_population, n_iterations = 25, 5, 5, 5
     else:
-        init_population, n_fittest, n_add, n_population, n_iterations = 400, 20, 2, 15, -1
+        init_population, n_fittest, n_add, n_population, n_iterations = 500, 25, 2, 15, -1
 
     GA = Darwen(mutation_rate=0.1, mutation_prob =.2, crossover_prob= 0.4, kill_rate=0.15, 
-                mod_elitism=4, n_crossover=1e3, 
-                initial_mutation_rate=0.2, initial_kill_rate=0.15, 
+                mod_elitism=7, n_crossover=1e3, 
+                initial_mutation_rate=0.2, initial_kill_rate=0.1, 
                 molecs_low_limit=30, molecs_high_limit=50, weight=[1e-2, 1],  
                 pop_prefix=pop_prefix, search_schemes_first=True, planets=planets,
                 init_population=init_population, n_fittest=n_fittest, n_population=n_population,
