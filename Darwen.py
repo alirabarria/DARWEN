@@ -627,10 +627,10 @@ class Darwen:
         return new_schemes, c
     
     
-    def _get_reacs_pool(self, reacs_array, molec_array):
+    def _get_reacs_pool(self, reacs_array, molec_array, force_total_pool=False):
         reacs_pool = []
         for j in range(self.params['len_reacs']):
-            if not j in reacs_array:
+            if not j in reacs_array or force_total_pool:
                 add_to_pool = np.all([m in molec_array for m in self.reacs_df.at[j,'molecs']])
                 if add_to_pool:
                     reacs_pool.append(j)
@@ -683,6 +683,7 @@ class Darwen:
             return reacs_array, molec_array
     
     def _mutate_mols(self, reacs_array, molec_array, ensure_uniqueness=False, boost=False, boost_factor=0.5):
+
         if ensure_uniqueness:
             reacs_array = np.unique(reacs_array)
             molec_array= np.unique(molec_array)
@@ -698,7 +699,7 @@ class Darwen:
         molecs_high_limit = self.params['molecs_high_limit'] - correct_len
         
         if len(molec_array) > molecs_high_limit:
-            new_len = molecs_high_limit
+            new_len = molecs_high_limit - np.random.randint(1, molecs_high_limit - molecs_low_limit)
         elif len(molec_array) < molecs_low_limit:
             new_len = molecs_low_limit
         elif boost:
@@ -717,6 +718,10 @@ class Darwen:
             if self._seed > -1:
                 np.random.seed(self._seed+5)
             molec_array = np.random.choice(molec_array, size = new_len, replace=False)
+            reacs_pool = self._get_reacs_pool(reacs_array, molec_array, force_total_pool=True)
+            mask_allow = [aux in reacs_pool for aux in reacs_array]
+            reacs_array = reacs_array[mask_allow]
+            
             
         elif add_len > 0 and (len(molec_array) <= molecs_high_limit and len(molecs_pool) > add_len):
             if self._seed > -1:
@@ -840,7 +845,7 @@ class Darwen:
             mode='random'
             parent_key0 = parent_key
             curiosity = 0
-            if (smart_mode == 'sometimes' and (i%3)==0) or smart_mode =='always':
+            if (smart_mode == 'sometimes' and (i%5)==0) or smart_mode =='always':
                 mode = 'smart'
                 parent_key+='-smart'
             elif smart_mode == 'curious':
@@ -1013,7 +1018,7 @@ class Darwen:
                                             pop_str=pop_str, parent_key=self.params['initial_scheme_dir'].split('/')[1],
                                             smart_mode=smart_mode, curious_pool_ratio=self.params['curious_pool_ratio'],
                                             parent_loss=self.initial_scheme.loss, ensure_n_mols=True,
-                                            forbid_crossover=True, 
+                                            forbid_crossover=True, boost_mols=False,
                                             max_curious_ids=self.params['max_curious_ids'])
         else:
             pop_str = self._pop_str
