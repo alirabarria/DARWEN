@@ -12,5 +12,5 @@ photoreac2020.ipho                 ! photo cross sections info file
 0.047d0  48.0d0  0.0d0             ! orbital distance [AU], zenith angle [deg], surface albedo
 1  0                               ! deactivate/activate (0/1) diffusion and photochemistry
 2                                  ! numerical method (1/2/3) (-1 is solid body rotation)
-0 0.1 0 0 23                        ! sensitivity analysis deactivate/vary-from-start/vary-all (0/1/2),rate variation,start,end,max_nout
-1e-4 1e-4                          ! RTOL and maxerrstdy for DLSODES and Newton-Raphson
+0 0.1 0 0 21                        ! sensitivity analysis deactivate/vary-from-start/vary-all (0/1/2),rate variation,start,end,max_nout
+1e-4 1e-2                          ! RTOL and maxerrstdy for DLSODES and Newton-Raphson
