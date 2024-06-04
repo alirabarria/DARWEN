@@ -3,11 +3,12 @@ from Scheme import *
 class Fetuccini:
     def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=0.5,
                  vary_zero=False, n_samples=10, pop_str='varied_reacs', out_path='1D_PAC/fetuccini', command='./',
-                 max_processes=12, silent=False, start_id=1000):
+                 max_processes=12, silent=False, start_id=0, params_to_vary=['alpha']):
         out_path = self._handle_dir(out_path)
         self.reacs_files = self.cook_fetuccini(reacs_in_full, reacs_from_file, inp_template=inp_file,
                                           width=width, vary_zero=vary_zero, n_samples=n_samples,
-                                          pop_str=pop_str, out_path=out_path, start_id=start_id)
+                                          pop_str=pop_str, out_path=out_path, start_id=start_id,
+                                          params_to_vary=params_to_vary)
         run_pac(pop_str=pop_str, silent=silent, max_processes=max_processes, command=command,
                 hide_output=False, out_path=out_path, out_file=None)
         
@@ -76,7 +77,7 @@ class Fetuccini:
 
 if __name__ == "__main__":
 
-    Fetuccini(reacs_in_full, reacs_from_file, n_samples=3000)
+    Fetuccini(reacs_in_full, reacs_from_file, n_samples=4000)
 
 
     
