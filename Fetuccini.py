@@ -34,7 +34,7 @@ class Fetuccini:
                     if use_exp:
                         sample_gauss = np.random.normal(1, width)
                         exp_delta = np.exp(sample_gauss)
-                        new_param = exp_delta*row['param']
+                        new_param = exp_delta*row[param]
 
                     else:
                         sign = np.sign(row[param])
