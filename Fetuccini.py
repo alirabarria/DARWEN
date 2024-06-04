@@ -25,17 +25,23 @@ class Fetuccini:
 
 
     def vary_params(self, reacs_in_full, reacs_from_file, vary_zero=False, params_to_vary = ['alpha', 'beta', 'gamma'],
-                width=.5, fname='1D_PAC/varied_reacs.reac', low_lim_int=36):
+                width=.1, fname='1D_PAC/varied_reacs.reac', low_lim_int=36, use_exp=True):
         new_reacs_df = reacs_in_full.copy()
         new_reacs_dict = {} 
         for ind, row in reacs_in_full.iterrows():
             for param in params_to_vary:
-                if row[param] != 0 or vary_zero:
-                    sign = np.sign(row[param])
-                    sample_gauss = np.random.normal(0, width)
-                    new_param = (1+sample_gauss)*row[param]
-                    if sign != np.sign(new_param) and sign != 0:
-                        new_param = sign*np.abs(new_param)
+                if row[param] != 0 or vary_zero:   
+                    if use_exp:
+                        sample_gauss = np.random.normal(1, width)
+                        exp_delta = np.exp(sample_gauss)
+                        new_param = exp_delta*row['param']
+
+                    else:
+                        sign = np.sign(row[param])
+                        sample_gauss = np.random.normal(0, width)
+                        new_param = (1+sample_gauss)*row[param]
+                        if sign != np.sign(new_param) and sign != 0:
+                            new_param = sign*np.abs(new_param)
                     new_reacs_df.at[ind, param] = new_param
         varied_file = open(fname, 'w')
         for i in range(len(reacs_from_file)):
@@ -77,7 +83,7 @@ class Fetuccini:
 
 if __name__ == "__main__":
 
-    Fetuccini(reacs_in_full, reacs_from_file, n_samples=4000)
+    Fetuccini(reacs_in_full, reacs_from_file, n_samples=50)
 
 
     
