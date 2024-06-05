@@ -2,7 +2,7 @@ from Scheme import *
 
 class Fetuccini:
     def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=0.5,
-                 vary_zero=False, n_samples=10, pop_str='varied_reacs', out_path='1D_PAC/fetuccini', command='./',
+                 vary_zero=False, n_samples=10, pop_str='alpha_reacs', out_path='1D_PAC/fetuccini', command='./',
                  max_processes=12, silent=False, start_id=0, params_to_vary=['alpha']):
         out_path = self._handle_dir(out_path)
         self.reacs_files = self.cook_fetuccini(reacs_in_full, reacs_from_file, inp_template=inp_file,
@@ -66,7 +66,7 @@ class Fetuccini:
     def cook_fetuccini(self, reacs_in_full, reacs_from_file, pop_str='varied_reacs', inp_template = '1D_PAC/hd2094_varied.inp', 
                        out_path='1D_PAC/fetuccini', vary_zero=False, params_to_vary = ['alpha', 'beta', 'gamma'],
                 width=.5, n_samples=5, start_id=0):
-        
+        print (params_to_vary)
         templates = [open(inp_template, 'r').readlines()]
         reacs_files = []
         for j in range(n_samples):
