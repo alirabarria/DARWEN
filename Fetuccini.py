@@ -1,15 +1,16 @@
 from Scheme import *
 
 class Fetuccini:
-    def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=0.5,
+    def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=0.25,
                  vary_zero=False, n_samples=10, pop_str='alpha_reacs', out_path='1D_PAC/fetuccini', command='./',
-                 max_processes=12, silent=False, start_id=0, params_to_vary=['alpha']):
+                 max_processes=12, silent=False, start_id=0, params_to_vary=['alpha'], run_rn=True):
         out_path = self._handle_dir(out_path)
         self.reacs_files = self.cook_fetuccini(reacs_in_full, reacs_from_file, inp_template=inp_file,
                                           width=width, vary_zero=vary_zero, n_samples=n_samples,
                                           pop_str=pop_str, out_path=out_path, start_id=start_id,
                                           params_to_vary=params_to_vary)
-        run_pac(pop_str=pop_str, silent=silent, max_processes=max_processes, command=command,
+        if run_rn:
+            run_pac(pop_str=pop_str, silent=silent, max_processes=max_processes, command=command,
                 hide_output=False, out_path=out_path, out_file=None)
         
 
@@ -33,6 +34,7 @@ class Fetuccini:
                 if row[param] != 0 or vary_zero:   
                     if use_exp:
                         sample_gauss = np.random.normal(1, width)
+                        print(sample_gauss)
                         exp_delta = np.exp(sample_gauss)
                         new_param = exp_delta*row[param]
 
@@ -64,7 +66,7 @@ class Fetuccini:
         return new_reacs_dict
     
     def cook_fetuccini(self, reacs_in_full, reacs_from_file, pop_str='varied_reacs', inp_template = '1D_PAC/hd2094_varied.inp', 
-                       out_path='1D_PAC/fetuccini', vary_zero=False, params_to_vary = ['alpha', 'beta', 'gamma'],
+                       out_path='1D_PAC/fetuccini', vary_zero=False, params_to_vary = ['alpha'],
                 width=.5, n_samples=5, start_id=0):
         print (params_to_vary)
         templates = [open(inp_template, 'r').readlines()]
@@ -83,7 +85,8 @@ class Fetuccini:
 
 if __name__ == "__main__":
 
-    Fetuccini(reacs_in_full, reacs_from_file, n_samples=1000)
+    Fetuccini(reacs_in_full, reacs_from_file, n_samples=2000, run_rn=True, width=.25, max_processes=36,
+              pop_str='areacs')
 
 
     
