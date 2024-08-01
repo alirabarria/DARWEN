@@ -32,8 +32,29 @@ def list_archives(strAddress, format=".dat", key='', sort_data=False):
         return np.sort(database)
     else:
         return database
+    
 
-def out_to_dfs(dir_, error_purposes=False, file_key='_out', header_keyword='!', return_only_mols=True):
+
+def correct_scientific_notation(input_str):
+    from re import compile
+    # Define a regex pattern to match the incorrect format
+    pattern = compile(r"(\d+\.\d+)([+-])(\d+)")
+    
+    # Function to replace the incorrect format with the correct one
+    def replace_func(match):
+        base = match.group(1)
+        sign = match.group(2)
+        exponent = match.group(3)
+        return f"{base}E{sign}{exponent}"
+    
+    # Apply the regex replacement
+    corrected_str = pattern.sub(replace_func, input_str)
+    
+    return corrected_str
+
+
+def out_to_dfs(dir_, error_purposes=False, file_key='_out', header_keyword='!', return_only_mols=True,
+               big_err_def=404*1e5):
     """
     Reads simulation output files from a specified directory and extracts data into pandas DataFrames.
     
@@ -70,7 +91,15 @@ def out_to_dfs(dir_, error_purposes=False, file_key='_out', header_keyword='!', 
 
             # Extract error and conservation error
             err_line = lines[16].replace(' ', '')
-            err = float(err_line.split('=')[1])
+            err_str = err_line.split('=')[1]
+            try:
+                err = float(err_str)
+                
+            except ValueError:
+                err = float(correct_scientific_notation(err_str))
+            except Exception as e:
+                print (repr(e))
+                err = big_err_def
             errs.append(err)
 
             cons_line = lines[20].replace(' ', '').replace('\n', '')
@@ -410,57 +439,45 @@ def network_to_df(fname='1D_PAC/venot2020reduced.reac', start_i=11, mid_i=257, a
 
 
 reacs_in_venot = network_to_df()
+reacs_in_lira = network_to_df(fname='1D_PAC/lira_val2024.reac', start_i=0, mid_i=247)
 reacs_in_full = network_to_df(fname='1D_PAC/venot2020.reac', start_i=0, mid_i=837, add_col='')
-reacs_file = open('1D_PAC/venot2020.reac', 'r')
-reacs_lines = reacs_file.readlines()
-reacs_from_file = {}
-i = 0
-c = 0
-while i < len(reacs_lines):
-    if i < 837:
-        reacs_from_file[c] = reacs_lines[i]
-        c+=1
-        i+=1
-        
-    else:
-        to_dict = reacs_lines[i]
-        i+=1
-        if i < len(reacs_lines):
-            aux = reacs_lines[i]
-            while len(aux[:4].replace(' ', '')) == 0:
-                to_dict+=aux
-                i+=1
-                aux = reacs_lines[i]
 
-            reacs_from_file[c] = to_dict       
+
+
+def add_id(reacs_in_venot, reacs_full_fname='1D_PAC/venot2020.reac'):
+    reacs_from_file = {}
+    reacs_file = open(reacs_full_fname, 'r')
+    reacs_lines = reacs_file.readlines()
+    i = 0
+    c = 0
+    while i < len(reacs_lines):
+        if i < 837:
+            reacs_from_file[c] = reacs_lines[i]
             c+=1
-    reacs, prods, remainder = extract_molecs(reacs_from_file[c-1], check_line=30)
-    for ind, row in reacs_in_venot.iterrows():
-        if np.all(reacs == row['reacs']) and np.all(prods == row['prods']):
-            if np.all(remainder == row['to_check']):
-                reacs_in_venot.at[ind, 'id'] = c - 1
-            else:
-                print ('signaling', ind, c - 1, remainder)
-#reacs_in_venot = reacs_in_venot.dropna()
+            i+=1
+            
+        else:
+            to_dict = reacs_lines[i]
+            i+=1
+            if i < len(reacs_lines):
+                aux = reacs_lines[i]
+                while len(aux[:4].replace(' ', '')) == 0:
+                    to_dict+=aux
+                    i+=1
+                    aux = reacs_lines[i]
 
-specs_file = open('1D_PAC/venot2020.spec', 'r')
-specs_lines = specs_file.readlines()
-specs_from_file = {}
-for i in range(3,len(specs_lines)):
-    sp = specs_lines[i].split(' ')[1]
-    specs_from_file[sp] = specs_lines[i]
+                reacs_from_file[c] = to_dict       
+                c+=1
+        reacs, prods, remainder = extract_molecs(reacs_from_file[c-1], check_line=30)
+        for ind, row in reacs_in_venot.iterrows():
+            if np.all(reacs == row['reacs']) and np.all(prods == row['prods']):
+                if np.all(remainder == row['to_check']):
+                    reacs_in_venot.at[ind, 'id'] = c - 1
+                else:
+                    print ('signaling', ind, c - 1, remainder)
+    return reacs_in_venot, reacs_from_file
 
-for i in range(len(reacs_from_file)):
-    arr = reacs_from_file[i].split(':')
-    splitted = arr[0].split()
-    rtype = splitted[-1]
-    gamma = splitted[-2]
-    beta = splitted[-3]
-    alpha = splitted[-4]
-    reacs_in_full.at[i, 'rtype'] = int(rtype)
-    reacs_in_full.at[i, 'alpha'] = np.float64(alpha)
-    reacs_in_full.at[i, 'beta'] = np.float64(beta)
-    reacs_in_full.at[i, 'gamma'] = np.float64(gamma)
+
 
 def run_pac(pop_str, silent=False, hide_output=False, out_file=None, out_path=Path(), max_processes=6, command='./'):
 
@@ -539,9 +556,373 @@ def get_yesterday(input_date):
     # Return the date in the same string format
     return yesterday.strftime("%Y-%m-%d")
 
-# Example usage:
-yesterday_date = get_yesterday("2024-04-30")  # Output will be '2024-04-29'
-yesterday_date_first_of_month = get_yesterday("2024-05-01")  # Output will be '2024-04-30'
+def mol_to_latex(molec):
+    if molec == 'H2O':
+        return '\mathrm{H}_2 \mathrm{O}'
+    elif molec == 'CH4':
+        return '\mathrm{CH}_4'
+    elif molec == 'CO2':
+        return '\mathrm{CO}_2'
+    elif molec=='C2H2':
+        return '\mathrm{C}_2 \mathrm{H}_2'
+    elif molec == 'NH3':
+        return '\mathrm{NH}_3'
+    else:
+        return molec
+    
+from decimal import Decimal, getcontext
+def arrhenius(t, alpha, beta, gamma, prec=50):
+    getcontext().prec=prec
+    t, alpha, beta, gamma =Decimal(t), Decimal(alpha), Decimal(
+        beta), Decimal(gamma)
+    return Decimal(alpha*(t/300)**beta*np.exp(-gamma/t))
+
+def get_rate_constant(t, p, rtype, alpha=1, beta=0, gamma=0, prefs=[], feff={},
+                      extra_params=[], inf_params=[], abuns={}, kboltz=1.3806504e-16,
+                      eps=1e-300, prec=30):
+    getcontext().prec = prec
+    abs_rtype = abs(rtype)
+    p = p *1e6
+    density = Decimal(p/(kboltz*t))
+    t = Decimal(t)
+    p = Decimal(p)
+
+    if abs_rtype>30 and abs_rtype < 40:
+        nrefpr = int(abs_rtype - 30)
+        if len(alpha) == 1:
+            print ('Plog reaction not well handled')
+        if p < prefs[0]: 
+            k_rate = arrhenius(t, alpha[0], beta[0], gamma[0], prec=prec)
+        elif p >=prefs[-1]:
+            k_rate = arrhenius(t, alpha[-1], beta[-1], gamma[-1], prec=prec)
+        else:
+            for ref in range(1, nrefpr-1):
+                p1 = prefs[ref]
+                p2 = prefs[ref+1]
+                if p <= p2:
+                    klow =  arrhenius(t, alpha[ref], beta[ref], gamma[ref], prec=prec)
+                    khigh = arrhenius(t, alpha[ref+1], beta[ref+1], gamma[ref+1], prec=prec)
+
+                    logk = np.log(klow) + (np.log(khigh) - np.log(klow)
+                                           )*(np.log(p) - np.log(p1)
+                                              )/(np.log(p2) - np.log(p1))
+                    k_rate = np.exp(logk)
+    elif abs_rtype in [800, 810, 811, 812, 900, 910, 911]:
+        k0 = arrhenius(t, alpha, beta, gamma, prec=prec)
+        kinf = arrhenius(t, inf_params[0], inf_params[1], inf_params[2], prec=prec)
+        m=0
+        if abs_rtype == 811:
+            m=abuns['H2O']*density
+        elif abs_rtype == 812:
+            m=abuns['CO2']*density
+        elif abs_rtype == 911:
+            m=abuns['CH4']*density
+        else:
+            for mol in abuns.keys():
+                if mol in feff.keys():
+                    f_eff = Decimal(feff[mol])
+                    abun = Decimal(abuns[mol])
+                    m=m+f_eff*abun*density
+
+        if abs_rtype in [800, 811, 812, 900, 911]: #Troe formulation
+            a, t3, t1, t2, N = extra_params
+            a, t3, t1, t2 = Decimal(a), Decimal(t3 + eps), Decimal(t1+eps), Decimal(t2)
+            fcent = (1 - a)*np.exp(-t/t3) + a*np.exp(-t/t1) + np.exp(-t2/t)
+            fcent = np.max([Decimal(eps), fcent])
+            c=-Decimal(0.4)-Decimal(0.67)*np.log10(fcent)
+            n=Decimal(0.75)-Decimal(1.27)*np.log10(fcent)
+            d=Decimal(0.14)
+            if m > 0:
+                fk = np.log10(fcent)/(
+                    1+((np.log10(k0*m/kinf)+c)/n-d*np.log10(k0*m/kinf)+c)**Decimal(2.))
+                fk = np.power(10, fk)
+            else:
+                fk=0
+        elif abs_rtype in [810, 910]:
+            a, b, c, d, e, N = extra_params
+            x=1/(1+(np.log10(k0*m/kinf))**2.)
+            fk=d*t**e*(a*np.exp(-b/t)+np.exp(-t/c))**x
+        k_rate = k0*m/(1+k0*m/kinf)*fk
+
+    elif abs_rtype in [801, 901]:
+        k0=arrhenius(t, alpha, beta, gamma)
+        m = 0
+        for mol in abuns.keys():
+            if mol in feff.keys():
+                m=m+feff[mol]*abuns[mol]*density
+        k_rate = k0*m
+    else:
+        k_rate = arrhenius(t, alpha, beta, gamma)
+
+    return k_rate
+
+def get_k(reacs_df, ind, t, p, abuns={}):
+    data = reacs_df.at[ind, 'data']
+    rtype = reacs_df.at[ind, 'rtype']
+    abs_rtype = abs(rtype)
+    unc_type = ''
+    feff = {}
+    alpha = reacs_df.at[ind, 'alpha']
+    beta = reacs_df.at[ind, 'beta']
+    gamma = reacs_df.at[ind, 'gamma']
+    
+    if 30 < abs_rtype and abs_rtype < 40:
+        prefs = []
+        array_data = data.split('\n')[:-1]
+        unc_type = array_data[0].split(':')[1].strip()
+        prefs.append(float(array_data[0].split(':')[2].strip()))
+        alpha = [alpha]
+        beta = [beta]
+        gamma = [gamma]
+        for ref in range(1, len(array_data)):
+            aux_data = array_data[ref]
+            pointy = aux_data.split(':')
+            prefs.append(float(pointy[1].strip()))
+            spacey = pointy[0].split()
+            alpha.append(float(spacey[0]))
+            beta.append(float(spacey[1]))
+            gamma.append(float(spacey[2]))
+        k_rate = get_rate_constant(t, p, rtype=rtype, alpha=alpha, beta=beta, gamma=gamma, prefs=prefs)
+
+    elif abs_rtype in [800, 810, 811, 812, 900, 910, 911]: #Troe params
+        feff = {}
+        array_data = data.split('\n')[:-1]
+        unc_type = array_data[0].split(':')[1].strip()
+        aux_params = array_data[1].split(':')
+        inf_params = aux_params[0].split()
+
+        aux_params = array_data[2].split(':')
+        troe_params = aux_params[0].split()
+
+        inf_params = [float(aux) for aux in inf_params]
+        troe_params = [float(aux) for aux in troe_params]
+        for ref in range(3, len(array_data)):
+            aux_params = array_data[ref].split(':')[0].split()
+            feff[aux_params[0]] = float(aux_params[1])
+        k_rate = get_rate_constant(t, p, rtype=rtype, abuns=abuns,
+                                   alpha=alpha, beta=beta, gamma=gamma,
+                                   feff=feff, inf_params=inf_params, 
+                                   extra_params=troe_params)
+    elif abs_rtype in [810, 910]:
+        array_data = data.split('\n')[:-1]
+        unc_type = array_data[0].split(':')[1].strip()
+        for ref in range(2, len(array_data)):
+            aux_params = array_data[ref].split(':')[0].split()
+            feff[aux_params[0]] = float(aux_params[1])
+        k_rate = get_rate_constant(t, p, rtype=rtype, feff=feff,
+                                   abuns=abuns, alpha=alpha, beta=beta,
+                                   gamma=gamma)
+    else:
+        unc_type = data.split(':')[1].strip()
+        k_rate = arrhenius(t, alpha=alpha, beta=beta, gamma=gamma)
+
+
+    return float(k_rate), unc_type
+
+def calculate_rate(reacs_in_lira, abun_df, ind, ind_height):
+    row = reacs_in_lira.iloc[ind]
+    reacs = row['reacs']
+    krate = row['krate'+str(ind_height)]
+    nu = Decimal(krate)
+    for reac in reacs:
+        abun = abun_df.at[ind_height, reac]
+        nu *= Decimal(10**abun)
+    return float(nu)
+
+prefix = '/Users/arturolira/phd_no_icloud/DARWEN/VENOT2020/reactions_'
+prefix = '1D_PAC/VENOT2020/reactions_'
+
+def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', 'CH4', 'H2', 'C2H6', 
+                                                     'Ar', 'N2', 'He', 'C2H4', 'benzene', 'toluene', 
+                                                     'H2O2', 'N2O', 'O3P', 'NH3', 'N2H4', 'N2O4', 
+                                                     'NO2', 'NO', 'N4S'],
+                      columns=['reacs', 'prods', 'alpha', 'beta', 'gamma', 'Troe', 'SRI', 'Inf', 'feff', 'prefs', 'alphas',
+                                            'betas', 'gammas', 'F', 'g', 'F_inf', 'g_inf'] ):
+    
+
+    data_from_venot = pd.DataFrame(columns=columns)
+    c = 0
+    for i in range(1,14):
+        direc = prefix+str(i)+'.dat'
+        file_lines = open(direc, 'r').readlines()
+        n = 0
+        for line in file_lines:
+            reacs = line[:56]
+            prods = line[56:106]
+            params = line[106:]
+            data_from_venot.at[c, 'reacs']= str(reacs.split())
+            data_from_venot.at[c, 'prods']=str(prods.split())
+            params = params.split()
+
+            if i in [1,2,8]: #Reversible, Irreversible bimolecular reacs, Reversible decomposition reactions
+                alpha, beta, gamma, F, g = params
+                
+            elif i in [3,9]: #Reversible bimolecular with pressure dependence, Reversible decomposition reactions - coefficients with a pressure dependence
+
+                if n < 3:
+                    N = 5
+                else:
+                    N = 8
+                if i==9:
+                    N = 6
+                prefs = params[:N]
+                alphas = params[N:2*N]
+                betas = params[2*N:3*N]
+                gammas = params[3*N:4*N]
+                F = params[4*N]
+                g = params[4*N+1]
+                alpha = alphas[0]
+                beta=betas[0]
+                gamma=gammas[0]
+                data_from_venot.at[c, 'prefs'] = str(prefs)
+                data_from_venot.at[c, 'alphas'] = str(alphas)
+                data_from_venot.at[c, 'betas'] = str(betas)
+                data_from_venot.at[c, 'gammas'] = str(gammas)
+                n += 1
+
+            elif i in [4,10,13]: #Reversible combination reactions, low pressure limit, Reversible decomposition reactions - low pressure limit, Reversible third-body assisted desexcitation reactions
+                # Alpha_0   Beta_0   Gamma_0   F_0   g_0   Efficiencies
+                feff = {}
+                alpha, beta, gamma, F, g = params[:5]
+                for j in range(len(params[5:])):
+                    feff[feff_keys[j]] = params[5+j]
+                data_from_venot.at[c, 'feff'] = str(feff)
+
+            elif i in [5, 7, 11]: #Reversible combination reactions - Troe formalism, Reversible combination reactions with specific third-body - Troe formalism, Reversible decomposition reactions - Troe formalism
+                # Alpha_0   Beta_0   Gamma_0   F_0   g_0   Alpha_inf   Beta_inf   Gamma_inf   F_inf  g_inf   A_Troe   B_Troe   C_Troe   D_Troe   Efficiencies
+                alpha, beta, gamma, F, g = params[:5]
+                data_from_venot.at[c, 'Inf'] = params[5:8]
+                data_from_venot.at[c, 'F_inf'] = params[8]
+                data_from_venot.at[c, 'g_inf'] = params[9]
+                data_from_venot.at[c, 'Troe'] = params[10:14]
+                N = 14
+                for j in range(len(params[N:])):
+                    feff[feff_keys[j]] = params[N+j]
+                data_from_venot.at[c, 'feff'] = str(feff)
+
+            elif i in [6, 12]: #Reversible combination reactions - SRI formalism, Reversible decomposition reactions - SRI formalism
+                # Alpha_0   Beta_0   Gamma_0   F_0   g_0   Alpha_inf   Beta_inf   Gamma_inf   F_inf  g_inf  A_SRI   B_SRI   C_SRI   D_SRI   E_SRI   Efficiencies
+                alpha, beta, gamma, F, g = params[:5]
+                data_from_venot.at[c, 'Inf'] = params[5:8]
+                data_from_venot.at[c, 'F_inf'] = params[8]
+                data_from_venot.at[c, 'g_inf'] = params[9]
+                data_from_venot.at[c, 'SRI'] = params[10:15]
+                N = 15
+                for j in range(len(params[N:])):
+                    feff[feff_keys[j]] = params[N+j]
+                data_from_venot.at[c, 'feff'] = str(feff)
+
+
+            data_from_venot.at[c, 'alpha'] = alpha
+            data_from_venot.at[c, 'beta'] = beta
+            data_from_venot.at[c, 'gamma'] = gamma
+            data_from_venot.at[c, 'F'] = F
+            data_from_venot.at[c, 'g'] = g
+            data_from_venot.at[c, 'num'] = i
+            c+=1
+    return data_from_venot
+
+reacs_in_venot, reacs_from_file = add_id(reacs_in_venot)
+reacs_in_lira, _ = add_id(reacs_in_lira)
+
+specs_file = open('1D_PAC/venot2020.spec', 'r')
+specs_lines = specs_file.readlines()
+specs_from_file = {}
+for i in range(3,len(specs_lines)):
+    sp = specs_lines[i].split(' ')[1]
+    specs_from_file[sp] = specs_lines[i]
+
+for i in range(len(reacs_from_file)):
+    arr = reacs_from_file[i].split(':')
+    splitted = arr[0].split()
+    rtype = splitted[-1]
+    gamma = splitted[-2]
+    beta = splitted[-3]
+    alpha = splitted[-4]
+    reacs_in_full.at[i, 'rtype'] = int(rtype)
+    reacs_in_full.at[i, 'alpha'] = np.float64(alpha)
+    reacs_in_full.at[i, 'beta'] = np.float64(beta)
+    reacs_in_full.at[i, 'gamma'] = np.float64(gamma)
+
+for ind, row in reacs_in_lira.iterrows():
+    row_in_full = reacs_in_full.iloc[row['id']]
+    reacs_in_lira.at[ind, 'alpha'] = row_in_full['alpha']
+    reacs_in_lira.at[ind, 'beta'] = row_in_full['beta']
+    reacs_in_lira.at[ind, 'gamma'] = row_in_full['gamma']
+    reacs_in_lira.at[ind, 'rtype'] = row_in_full['rtype']
+    reacs_in_lira.at[ind, 'data'] = reacs_from_file[int(row['id'])]
+
+data_from_venot = obtain_unc_factors()
+for ind, row in reacs_in_lira.iterrows():
+    id_ = row['id']
+    row_venot = data_from_venot.iloc[id_]
+    if str(row['reacs']) == str(row_venot['reacs']):
+        F, g, F_inf, g_inf = row_venot['F'], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
+        
+    else:
+        for ind_venot, row_venot in data_from_venot.iterrows():
+            if row['reacs'] == eval(row_venot['reacs']
+                    ) and row['prods']==eval(row_venot['prods']):
+                F, g, F_inf, g_inf = row_venot['F'
+                            ], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
+
+    reacs_in_lira.at[ind, 'F'] = F
+    reacs_in_lira.at[ind, 'g'] = g
+    reacs_in_lira.at[ind, 'F_inf'] = F_inf
+    reacs_in_lira.at[ind, 'g_inf'] = g_inf
+
+abun_df, cons_err, _ = out_to_dfs('1D_PAC/hd2094_optval_0905', error_purposes=True, return_only_mols=False)
+abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
+
+def unc_factor(t, F0, g0, T0=300):
+    return F0*np.exp(g0*np.abs(1/t - 1/T0))
+
+def add_params(reacs_in_lira, abun_df, add_krate=False):
+    for ind in reacs_in_lira.index:
+        nu_max = 0
+        unc_max = 0
+        unc_min = 10
+        for ind_abun, row_abun in abun_df.iterrows():
+            t = row_abun['temperature[K]']
+            p = row_abun['pressure[bar]']
+            abuns = row_abun
+            if add_krate:
+                krate, unc_type = get_k(reacs_in_lira, ind, t, p, 
+                                    abuns=abuns)
+                reacs_in_lira.at[ind, 'krate'+str(ind_abun)] = krate
+                nu = calculate_rate(reacs_in_lira, abun_df, ind, ind_abun)
+                reacs_in_lira.at[ind, 'nu'+str(ind_abun)] = nu
+                if nu > nu_max:
+                    nu_max = nu
+                
+
+            F = float(reacs_in_lira.at[ind, 'F'])
+            g = float(reacs_in_lira.at[ind, 'g'])
+            F_inf = float(reacs_in_lira.at[ind, 'F_inf'])
+            g_inf = float(reacs_in_lira.at[ind, 'g_inf'])
+            sigma = unc_factor(t, F0=F, g0=g)
+
+            reacs_in_lira.at[ind, 'unc'+str(ind_abun)] = sigma
+
+            if str(F_inf) != 'nan':
+                sigma_inf = unc_factor(t, F0=F_inf, g0=g_inf)
+                reacs_in_lira.at[ind, 'unc_inf'+str(ind_abun)] = sigma_inf
+
+            
+
+            if sigma > unc_max:
+                unc_max = sigma
+            
+            if sigma < unc_min:
+                unc_min = sigma
+        if add_krate:
+            reacs_in_lira.at[ind,  'unc_type'] = unc_type
+            reacs_in_lira.at[ind, 'nu_max'] = nu_max
+        reacs_in_lira.at[ind, 'unc_max'] = unc_max
+        reacs_in_lira.at[ind, 'unc_min'] = unc_min
+    return reacs_in_lira
+
+reacs_in_lira = add_params(reacs_in_lira=reacs_in_lira, abun_df=abun_df)
 
 
 
