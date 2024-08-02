@@ -1,4 +1,4 @@
-lira_val2024.spec                     ! species file
+venot2020.spec                     ! species file
 HD209458b_sub.zab                  ! z,p,T (initial abundances) file
 2  0  0                            ! No reaction files, (0/1) not/use iondip treatment, print reac warnings
 lira_val2024.reac              ! reaction file
