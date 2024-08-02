@@ -832,6 +832,8 @@ for i in range(3,len(specs_lines)):
     sp = specs_lines[i].split(' ')[1]
     specs_from_file[sp] = specs_lines[i]
 
+
+
 for i in range(len(reacs_from_file)):
     arr = reacs_from_file[i].split(':')
     splitted = arr[0].split()
@@ -853,23 +855,38 @@ for ind, row in reacs_in_lira.iterrows():
     reacs_in_lira.at[ind, 'data'] = reacs_from_file[int(row['id'])]
 
 data_from_venot = obtain_unc_factors()
-for ind, row in reacs_in_lira.iterrows():
-    id_ = row['id']
-    row_venot = data_from_venot.iloc[id_]
-    if str(row['reacs']) == str(row_venot['reacs']):
-        F, g, F_inf, g_inf = row_venot['F'], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
-        
-    else:
-        for ind_venot, row_venot in data_from_venot.iterrows():
-            if row['reacs'] == eval(row_venot['reacs']
-                    ) and row['prods']==eval(row_venot['prods']):
-                F, g, F_inf, g_inf = row_venot['F'
-                            ], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
 
-    reacs_in_lira.at[ind, 'F'] = F
-    reacs_in_lira.at[ind, 'g'] = g
-    reacs_in_lira.at[ind, 'F_inf'] = F_inf
-    reacs_in_lira.at[ind, 'g_inf'] = g_inf
+def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
+    for ind, row in reacs_in_lira.iterrows():
+        if use_whole_net:
+            id_ = ind
+        else:
+            id_ = row['id']
+
+        if id_ == 958:
+            continue
+        else:
+            row_venot = data_from_venot.iloc[id_]
+
+
+        if str(row['reacs']) == str(row_venot['reacs']):
+            F, g, F_inf, g_inf = row_venot['F'], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
+            
+        else:
+            for ind_venot, row_venot in data_from_venot.iterrows():
+                if row['reacs'] == eval(row_venot['reacs']
+                        ) and row['prods']==eval(row_venot['prods']):
+                    F, g, F_inf, g_inf = row_venot['F'
+                                ], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
+
+        reacs_in_lira.at[ind, 'F'] = F
+        reacs_in_lira.at[ind, 'g'] = g
+        reacs_in_lira.at[ind, 'F_inf'] = F_inf
+        reacs_in_lira.at[ind, 'g_inf'] = g_inf
+    return reacs_in_lira
+
+reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot)
+reacs_in_full = add_Fg(reacs_in_full, data_from_venot)
 
 abun_df, cons_err, _ = out_to_dfs('1D_PAC/hd2094_optval_0905', error_purposes=True, return_only_mols=False)
 abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
@@ -923,6 +940,8 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
     return reacs_in_lira
 
 reacs_in_lira = add_params(reacs_in_lira=reacs_in_lira, abun_df=abun_df)
+reacs_in_full = add_params(reacs_in_lira=reacs_in_full, abun_df=abun_df)
+
 
 
 

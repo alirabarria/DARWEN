@@ -4,12 +4,12 @@ class Fetuccini:
     def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=0.25,
                  vary_zero=False, n_samples=10, pop_str='alpha_reacs', out_path='1D_PAC/fetuccini', command='./',
                  max_processes=12, silent=False, start_id=0, params_to_vary=['alpha'], run_rn=True,
-                 mode='lognormal'):
+                 mode='lognormal', use_all_reacs=False):
         out_path = self._handle_dir(out_path)
         self.reacs_files = self.cook_fetuccini(reacs_in_full, reacs_from_file, inp_template=inp_file,
                                           width=width, vary_zero=vary_zero, n_samples=n_samples,
                                           pop_str=pop_str, out_path=out_path, start_id=start_id,
-                                          params_to_vary=params_to_vary, mode=mode)
+                                          params_to_vary=params_to_vary, mode=mode, use_all_reacs=use_all_reacs)
         if run_rn:
             run_pac(pop_str=pop_str, silent=silent, max_processes=max_processes, command=command,
                 hide_output=False, out_path=out_path, out_file=None)
@@ -30,7 +30,7 @@ class Fetuccini:
                     params_to_vary = ['alpha'],
                  width=.1, fname='1D_PAC/varied_reacs.reac', 
                  low_lim_int=36, mode='lognormal', 
-                 use_all_reacs=False):
+                 use_all_reacs=False, not_include=[958]):
         
         new_reacs_df = reacs_in_full.copy()
         new_reacs_dict = {} 
@@ -64,6 +64,9 @@ class Fetuccini:
             else:
                 id_ = i
 
+            if id_ in not_include:
+                continue
+
             line_i = reacs_from_file[id_].split(':')
             start_i = line_i[0][:-low_lim_int]
             end_i = ' '
@@ -84,7 +87,7 @@ class Fetuccini:
     
     def cook_fetuccini(self, reacs_in_full, reacs_from_file, pop_str='varied_reacs', inp_template = '1D_PAC/hd2094_varied.inp', 
                        out_path='1D_PAC/fetuccini', vary_zero=False, params_to_vary = ['alpha'],
-                width=.5, n_samples=5, start_id=0, mode='lognormal'):
+                width=.5, n_samples=5, start_id=0, mode='lognormal', use_all_reacs=False):
         print (params_to_vary)
         templates = [open(inp_template, 'r').readlines()]
         reacs_files = []
@@ -95,7 +98,7 @@ class Fetuccini:
             aux_sch._write_scheme(fname, change_spec_file=False, templates=templates)
             new_reacs_file = self.vary_params(reacs_in_full, reacs_from_file, fname=fname,
                                               vary_zero=vary_zero, params_to_vary=params_to_vary, width=width,
-                                              mode=mode)
+                                              mode=mode, use_all_reacs=use_all_reacs)
             reacs_files.append(new_reacs_file)
         return reacs_files
     
@@ -103,7 +106,7 @@ class Fetuccini:
 
 if __name__ == "__main__":
 
-    Fetuccini(reacs_in_full, reacs_from_file, n_samples=2000, run_rn=True, width=.25, max_processes=36,
+    Fetuccini(reacs_in_full, reacs_from_file, n_samples=10000, run_rn=True, width=.25, max_processes=36,
               pop_str='areacs')
 
 
