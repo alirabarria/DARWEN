@@ -1,0 +1,494 @@
+c
+       implicit none
+c
+c      Include array dimensions
+c
+       include 'dimension.common'
+
+c    --------------------------------------------------------------------------
+c
+c      Physical constants
+c
+       real*8 kboltz,pi,amu,ggravity,day,year,rearth,mearth,au,rsun,
+     # clight,hplanck
+
+       parameter(kboltz=1.3806504d-16)      ! Boltzmann constant           [erg/K]
+       parameter(pi=3.141592653589793d0)    ! pi number
+       parameter(amu=1.6605402d-24)         ! atomic mass unit             [g]
+       parameter(ggravity=6.67384d-8)       ! gravitational constant       [cm3 g-1 s-2]
+       parameter(day=8.64d4)                ! day                          [s]
+       parameter(year=3.15576d7)            ! year                         [s]
+       parameter(rearth=6.371d8)            ! mean Earth radius            [cm]
+       parameter(mearth=5.9736d27)          ! Earth mass                   [g]
+       parameter(au=1.495978707d13)         ! astronomical unit            [cm]
+       parameter(rsun=6.955d10)             ! Sun radius                   [cm]
+       parameter(clight=2.99792458d10)      ! speed of light               [cm s-1]
+       parameter(hplanck=6.62606957d-27)    ! Planck constant              [erg s]
+
+c    --------------------------------------------------------------------------
+c
+c      Numerical and miscellaneous parameters
+c
+       integer nspecxfile
+       real*8 tiny,huge,abunmin,ftstep,cn_theta,kratemax1,kratemax2,
+     # kratemax3
+
+       parameter(nspecxfile=120)     ! number of species per output file
+       parameter(tiny=1.0d-100)      ! tiny number
+       parameter(huge=1.0d+100)      ! huge number
+       parameter(abunmin=1.0d-99)    ! minimum molar fraction to write out
+       parameter(ftstep=10.0d0)      ! minimum time step factor
+       parameter(cn_theta=0.501d0)   ! Crank-Nicholson parameter
+       parameter(kratemax1=1.0d15)   ! maximum rate constant for unimolecular reactions [s-1]
+       parameter(kratemax2=2.0d-9)   ! maximum rate constant for bimolecular reactions  [cm3 s-1]
+       parameter(kratemax3=1.0d-28)  ! maximum rate constant for termolecular reactions [cm6 s-1]
+
+       integer nummethod,iyea0,imon0,iday0,ihou0,imin0,isec0
+
+c      nummethod: numerical method to solve continuity equation
+c      iyea0:     initial CPU year
+c      imon0:     initial CPU month
+c      iday0:     initial CPU day
+c      ihou0:     initial CPU hour
+c      imin0      initial CPU minute
+c      isec0:     initial CPU second
+
+       common/inumeric/nummethod,iyea0,imon0,iday0,ihou0,imin0,isec0
+
+c    --------------------------------------------------------------------------
+c
+c      Model parameters
+c
+       logical ion,therm,diffusion,photochem,iondip
+
+c      ion:       .true./.false. = (there are / there are not) charged species
+c      therm:     .true./.false. = (there is / there is not) a therm file
+c      diffusion: .true./.false. = (activate / deactivate) diffusion
+c      photochem: .true./.false. = (activate / deactivate) photochemistry
+c      iondip:    .true./.false. = (use / do not use) special treatment for ion-dipole reactions
+
+       common/lmodelparam/ion,therm,diffusion,photochem,iondip
+
+c    --------------------------------------------------------------------------
+c
+c      Physical parameters @Arturo, mmw
+c
+       integer nz
+       real*8 rplanet,mplanet,z(nmaxz),pmax,pmin,pressure(nmaxz),
+     # tk(nmaxz),density(nmaxz),dist,zenithangle,rstar,albedoplanet,
+     # mmw(nmaxz)
+
+c      nz:          number of height points
+c                                                             on input   --> internally
+c      rplanet:     planet radius                             [m(Earth)] --> [cm]
+c      mplanet:     planet mass                               [R(Earth)] --> [g]
+c      z:           height                                    [km]       --> [cm]
+c      pmax:        pressure at bottom layer                  [bar]      --> [dyn cm-2]
+c      pmin:        pressure at top layer                     [bar]      --> [dyn cm-2]
+c      pressure:    gas pressure                              [bar]      --> [dyn cm-2]
+c      mmw:         mean molecular weight                     [g]
+c      tk:          gas kinetic temperature                                  [K]
+c      density:     number of particles per unit volumen                     [cm-3]
+c      dist:        star-planet distance                      [AU]       --> [cm]
+c      zenithangle: zenith angle                              [deg]      --> [rad]
+c      rstar:       stellar radius                            [R(Sun)]   --> [cm]
+c      albedoplanet:albedo of planet surface (wavelength independent)
+
+       common/iphys/nz
+       common/rphys/rplanet,mplanet,z,pmax,pmin,pressure,tk,density,
+     # dist,zenithangle,rstar,albedoplanet,mmw
+
+c    --------------------------------------------------------------------------
+c
+c      Species parameters
+c
+       integer nspec,ilenspec(nmaxspec),charge(nmaxspec),
+     # nattot(nmaxspec),nat(nmaxspec,nmaxelem),nelemspec(nmaxspec),
+     # nelem,nthspec,idthspec(nmaxspec),nthtemp(nmaxspec),
+     # thtype(nmaxspec),id_h2,id_h,id_he,id_h2o,id_co2,id_ch4,
+     # id_electr
+       real*8 abun(nmaxspec,nmaxz),mass(nmaxspec),dipmom(nmaxspec),
+     # polary(nmaxspec),ionp(nmaxspec),tha(nmaxspec,9,nmaxthtemp),
+     # thtemp(nmaxspec,nmaxthtemp+1),cdelem(nmaxelem),
+     # cdelem0(nmaxelem),elab(nmaxelem,nmaxz),elab0(nmaxelem,nmaxz)
+       character*(nmaxcharspec) spec(nmaxspec)
+       character*2 elem(nmaxelem)
+
+c      nspec:       number of species
+c      ilenspec:    number of characters of species name
+c      charge:      species electrostatic charge                          [electron charge]
+c      nattot:      total number of atoms for each species
+c      nat(i,j):    number of atoms of element j in species i
+c      nelemspec:   number of elements each species
+c      nelem:       number of elements included in model
+c      nthspec:     number of species with known therm data
+c      idthspec:    species identifier to get right therm data
+c      nthtemp:     number of temperature ranges of NASA polynomials
+c      thtype:      type of NASA polynomials (7-term, 9-term)
+c      id_h2:       species identifier for H2
+c      id_h:        species identifier for H
+c      id_he:       species identifier for He
+c      id_h2o:      species identifier for H2O
+c      id_co2:      species identifier for CO2
+c      id_ch4:      species identifier for CH4
+c      id_electr:   species identifier for electron
+c      abun:        species abundance at each height                      [molar fraction]
+c      mass:        species mass                                          [g]
+c      dipmom:      species electric dipole moment                        [Debye]
+c      polary:      species polarizability                                [Angstrom^3]
+c      ionp:        species ionization potential                          [eV]
+c      tha:         NASA polynomial coefficients
+c      thtemp:      temperature edges of ranges for NASA polynomial coefficients
+c      cdelem:      spherically averaged element column density           [cm-2]
+c      cdelem0:     initial spherically averaged element column density   [cm-2]
+c      elab:        element abundance (as a sum of molar fractions) in each layer
+c      elab0:       initial element abundance (as a sum of molar fractions) in each layer
+c      spec:        species name
+c      elem:        elements included in model
+
+       common/ispec/nspec,ilenspec,charge,nattot,nat,nelemspec,nelem,
+     # nthspec,idthspec,nthtemp,thtype,id_h2,id_h,id_he,id_h2o,id_co2,
+     # id_ch4,id_electr
+       common/rspec/abun,mass,dipmom,polary,ionp,tha,thtemp,cdelem,
+     # cdelem0,elab,elab0
+       common/cspec/spec,elem
+
+c    --------------------------------------------------------------------------
+c
+c      Reaction parameters
+c
+       integer nreacfile,nreac,rtype(nmaxreac),nreag(nmaxreac),
+     # nprod(nmaxreac),ilenreag(nmaxreac,nmaxreag),
+     # ilenprod(nmaxreac,nmaxprod),idreag(nmaxreac,nmaxreag),
+     # idprod(nmaxreac,nmaxprod),idrvreac(nmaxreac)
+       real*8 alpha(nmaxreac),beta(nmaxreac),gamma(nmaxreac),
+     # tkmin(nmaxreac),tkmax(nmaxreac),kerror(nmaxreac),
+     # krate(nmaxreac,nmaxz),old_alpha(nmaxreac),warnreac
+       character*50 reac(nmaxreac)
+       character*4 tkcode(nmaxreac)
+       character*(nmaxcharspec) reag(nmaxreac,nmaxreag),
+     # prod(nmaxreac,nmaxprod)
+       character*1 lerror(nmaxreac),ksource(nmaxreac)
+       character*146 comment(nmaxreac)
+       logical kwarning(nmaxreac)
+
+c      nreac:    number of reactions used
+c      rtype:    type of reaction
+c      nreag:    number of reagents in each reaction
+c      nprod:    number of products in each reaction
+c      ilenreag: number of characters of reagent name
+c      ilenprod: number of characters of product name
+c      idreag:   species identifier of reagent
+c      idprod:   species identifier of product
+c      idrvreac: identifier (for a reverse reaction) of forward reaction 
+c      alpha:    alpha in rate constant expression
+c      old_alpha: to save alpha before sensitivity analysis @Arturo
+c      beta:     beta in rate constant expression
+c      gamma:    gamma in rate constant expression
+c      tkmin:    minimum tk at which the rate constant expression is valid
+c      tkmax:    maximum tk at which the rate constant expression is valid
+c      kerror:   uncertainty factor in the reaction rate constant expression
+c      krate:    reaction rate constant                          [cm6 s-1; cm3 s-1; or s-1]
+c      reac:     reaction name
+c      tkcode:   code to state how are the tk limits to be used in each reaction
+c                '<fix', '>fix', '<>fx', '<zer', '>zer', '<>zr'
+c      reag:     reagent name
+c      prod:     product name
+c      lerror:   label uncertainty in the reaction rate constant expression
+c                A (<25%), B (<50%), C (factor 2), D (factor 10), E (highly uncertain)
+c      ksource:  source of the reaction rate constant expression
+c                M (measured), E (estimated), L (literature), C (calculated)
+c      comment:  comment on the reaction rate constant expression
+c      kwarning: .true. if rate constant has a warning
+c      warnreac: 1 if you want reac warnings
+
+       common/ireac/nreacfile,nreac,rtype,nreag,nprod,ilenreag,
+     # ilenprod,idreag,idprod,idrvreac,warnreac
+       common/rreac/alpha,beta,gamma,tkmin,tkmax,kerror,krate,
+     # old_alpha
+       common/creac/reac,tkcode,reag,prod,lerror,ksource,comment
+       common/lreac/kwarning
+
+c    --------------------------------------------------------------------------
+c
+c      PLOG reaction parameters
+c
+       integer nrplog,idrplog(nmaxreac)
+       real*8 prefplog(nmaxrplog,nmaxpref),
+     # alphaplog(nmaxrplog,nmaxpref),betaplog(nmaxrplog,nmaxpref),
+     # gammaplog(nmaxrplog,nmaxpref),old_alphaplog(nmaxrplog,nmaxpref)
+
+c      nrplog:    number of PLOG reactions
+c      idrplog:   reaction identifier within the group of PLOG reactions
+c      prefplog:  reference pressures for the PLOG reactions
+c      alphaplog: alpha for the PLOG reactions
+c      old_alphaplog: array to save alpha for the PLOG reactions before varying in the sensitivity analysis @Arturo
+c      betaplog:  beta for the PLOG reactions
+c      gammaplog: gamma for the PLOG reactions
+
+       common/iplogreac/nrplog,idrplog
+       common/rplogreac/prefplog,alphaplog,betaplog,gammaplog,
+     # old_alphaplog
+
+c    --------------------------------------------------------------------------
+c
+c      Collisional reaction parameters
+c
+       integer nrcoll,idrcoll(nmaxreac),nmrcoll(nmaxrcoll),
+     # idmrcoll(nmaxrcoll,nmaxmrcoll)
+       real*8 alphainf(nmaxrcoll),betainf(nmaxrcoll),
+     # gammainf(nmaxrcoll),afoff(nmaxrcoll),bfoff(nmaxrcoll),
+     # cfoff(nmaxrcoll),dfoff(nmaxrcoll),efoff(nmaxrcoll),
+     # fmrcoll(nmaxrcoll,nmaxmrcoll),old_alphainf(nmaxrcoll)
+
+c      nrcoll:   number of collisional reactions
+c      idrcoll:  reaction identifier within the group of collisional reactions
+c      nmrcoll:  number of collision bodies M with known enhancement factors
+c      idmrcoll: species identifier for collision body M with a known enhancement factor
+c      alphainf: alpha for k_infinite
+c      old_alphainf: array to save alpha for the coll reactions before varying in the sensitivity analysis @Arturo
+c      betainf:  beta for k_infinite
+c      gammainf: gamma for k_infinite
+c                   Fall off parameters:
+c      afoff:    Troe: A               SRI: a
+c      bfoff:    Troe: T***            SRI: b
+c      cfoff:    Troe: T*              SRI: c
+c      dfoff:    Troe: T**             SRI: d
+c      efoff:    Troe: --              SRI: e
+c      fmrcoll:  enhancement factor for each collision body M
+
+       common/icollreac/nrcoll,idrcoll,nmrcoll,idmrcoll
+       common/rcollreac/alphainf,betainf,gammainf,afoff,bfoff,cfoff,
+     # dfoff,efoff,fmrcoll,old_alphainf
+
+c    --------------------------------------------------------------------------
+c
+c      Chemical production and loss parameters
+c
+       integer nterm(nmaxspec),idterm(nmaxspec,nmaxrs),
+     # sterm(nmaxspec,nmaxrs),fterm(nmaxspec,nmaxrs),
+     # nphototerm(nmaxspec),idphototerm(nmaxspec,nmaxps),
+     # sphototerm(nmaxspec,nmaxps),fphototerm(nmaxspec,nmaxps)
+
+c      nterm:      number of terms in rate equation of each species
+c      idterm:     index identifying the reaction associated to each term
+c      sterm:      sign (+/-) of the term in the rate equation
+c      fterm:      factor to multiply each term in rate equation
+c                     if a species appears e.g. twice as a reagent or product
+c      nphototerm: number of photo-terms in rate equation of each species
+c      idphototerm:index identifying the photo reaction associated to each term
+c      sphototerm: sign (+/-) of the photo-term in the rate equation
+c      fphototerm: factor to multiply each photo-erm in rate equation
+
+       common/icploss/nterm,idterm,sterm,fterm,nphototerm,idphototerm,
+     # sphototerm,fphototerm
+
+c    --------------------------------------------------------------------------
+c
+c      Diffusion processes
+c
+       real*8 ddif(nmaxspec,nmaxz),kdif(nmaxz),hatm(nmaxz),
+     # hspe(nmaxspec,nmaxz)
+
+c      ddif:      molecular diffusion coefficient D                      [cm2 s-1]
+c      kdif:      Eddy diffusion coefficient K                           [cm2 s-1]
+c      hatm:      scale height of atmosphere (height dependent)          [cm]
+c      hspe:      scale height for each species (height dependent)       [cm]
+
+       common/rdiff/ddif,kdif,hatm,hspe
+
+c    --------------------------------------------------------------------------
+c
+c      Photon processes
+c
+       integer nwlth,nphotoreac,nphotospec,
+     # nphotoprod(nmaxphotoreac),ilenphotoreag(nmaxphotoreac),
+     # ilenphotoprod(nmaxphotoreac,nmaxprod),
+     # idphotoreag(nmaxphotoreac),idphotoprod(nmaxphotoreac,nmaxprod),
+     # idphotospec(nmaxphotoreac)
+       real*8 wlthmin,wlthmax,wlth(nmaxwlth),fphot(nmaxwlth),
+     # csphot(nmaxphotoreac,nmaxwlth),
+     # csphotabs(nmaxphotoreac,nmaxwlth),jphot(nmaxphotoreac,nmaxz),
+     # p_tau1(nmaxwlth),z_tau1(nmaxwlth)
+       character*50 photoreac(nmaxphotoreac)
+       character*(nmaxcharspec) photoreag(nmaxphotoreac),
+     # photoprod(nmaxphotoreac,nmaxprod)
+
+c      nwlth:         number of wavelengths
+c      nphotoreac:    number of photo cross section processes
+c      nphotospec:    number of absorbing photo species
+c      nphotoprod:    number of products in each photo reaction
+c      ilenphotoreag: number of characters of reagent name
+c      ilenphotoprod: number of characters of product name
+c      idphotoreag:   species identifier of photoreaction reagent
+c      idphotoprod:   species identifier of photoreaction product
+c      idphotospec:   species identifier of photospecies
+c      wlthmin:       lower wavelength limit                              [nm]
+c      wlthmax:       upper wavelength limit                              [nm]
+c      wlth:          wavelength grid                                     [nm]
+c      fphot:         photon flux on top of the atmosphere                [photon s-1 cm-2]
+c      csphot:        photoreaction cross section                         [cm2]
+c      csphot:        photoabsortion cross section                        [cm2]
+c      jphot:         photo rate                                          [s-1]
+c      p_tau1:        pressure where opacity is 1 (wavelength dependent)  [dyn cm-2]
+c      z_tau1:        height where opacity is 1 (wavelength dependent)    [dyn cm-2]
+c      photoreac:     photo reaction name
+c      photoreag:     reagent name
+c      photoprod:     product name
+
+       common/iphot/nwlth,nphotoreac,nphotospec,nphotoprod,
+     # ilenphotoreag,ilenphotoprod,idphotoreag,idphotoprod,
+     # idphotospec
+       common/rphot/wlthmin,wlthmax,wlth,fphot,csphot,csphotabs,
+     # jphot,p_tau1,z_tau1
+       common/cphot/photoreac,photoreag,photoprod
+
+c    --------------------------------------------------------------------------
+c
+c      Solution of continuity equation
+c
+       integer nzs,idcons(nmaxelem,nmaxz),itime
+       real*8 f(nmaxspec,nmaxz),df(nmaxspec,nmaxz,nmaxspec),
+     # df_dif(nmaxspec,nmaxz),df_jm_dif(nmaxspec,nmaxz),
+     # df_jp_dif(nmaxspec,nmaxz),cn_dt,cn_dy(nmaxspec,nmaxz),time,
+     # errsteady,dydtscale,elabscale,rtol,abunminsteady,maxerrsteady
+       logical steady
+
+c      nzs:       number of layers x number of species
+c      f:         function f in continuity equation                   [cm-3 s-1]
+c                 f_i^j = P_i^j -n_i^j*L_i^j -div(flux_i^j)
+c      df:        molar fraction derivative of f within height j      [cm-3 s-1]
+c                 d[f_i^j]/d(y_k^j)
+c      df_dif:    molar fraction derivative of f within same height   [cm-3 s-1]
+c                 d[f_i^j]/d(y_i^j)
+c      df_jm_dif: derivative of f with molar fraction in lower layer  [cm-3 s-1]
+c                 d[f_i^j]/d(y_i^j-1)
+c      df_jp_dif: derivative of f with molar fraction in upper layer  [cm-3 s-1]
+c                 d[f_i^j]/d(y_i^j+1)
+c      ---------- Crank-Nicolson:
+c      cn_dt:     time increment                                      [s]
+c      cn_dy:     abundance increment dy = y(t+dt) - y(t)             [molar fraction]
+c      ---------- DLSODES:
+c      time:      integration time for time-dependent solution        [s]
+c      steady:    .true. if steady state reached for time-dependent solution
+c      errsteady: maximum molar fraction relative difference with respect to previous time
+c      itime:     counter for integration times to write out results
+c      rtol:      relative tolerance parameter (scalar)
+c      maxerrsteady: relative tolerance to consider steady state
+c      abunminsteady: threshold in abundance to calculate relative error 
+c      ---------- Newton-Raphson:
+c      idcons:    species identifier for conservation equation of elements/charge
+c      dydtscale: mean value to scale dy/dt equations                 [s-1]
+c      elabscale: mean element abundance to scale conservation equations
+
+       common/iconteq/nzs,idcons,itime
+       common/rconteq/f,df,df_dif,df_jm_dif,df_jp_dif,cn_dt,cn_dy,
+     # time,errsteady,dydtscale,elabscale,rtol,abunminsteady,
+     # maxerrsteady
+       common/lconteq/steady
+
+c    --------------------------------------------------------------------------
+c
+c      Sensitivity analysis and reduction @Arturo
+c
+      integer irate,sensi,stsensi,endsensi,rvirate,nout,errflag,max_nout
+      logical change_rate,first_vary,writekrate
+      real*8 drate,diff_ctbn(nmaxspec,nmaxz),chem_ctbn(nmaxspec,nmaxz)
+      character reacs(nmaxreac)*130
+c      sensi:     0 for no sensitivity analysis, 1 for sensitivity before steady, 2 after
+c      irate:     which rate index should be varied
+c      change_rate: wheter to vary the rate in the current loop
+c      writekrate: to debug code
+c      nout:      integer to cut the loop if too many files are written
+c      rvirate:    reverse reaction rate of irate if there is one
+c      stsensi:   which rate index should start the variation in case sensi=2
+c      endsensi:  which rate index should end the variation in case sensi=2
+c      drate:     how much should the rate constant be varied
+       common/isensi/irate,sensi,stsensi,endsensi,rvirate,nout,errflag,
+     # max_nout
+       common/lsensi/change_rate,first_vary,writekrate
+       common/rsensi/drate,diff_ctbn,chem_ctbn
+       common/charsensi/reacs
+
+c    --------------------------------------------------------------------------
+c
+c      Solid body rotation parameters
+c
+       integer nperiod,nlong,ostat_sbr
+       real*8 windspeed,period,tin_sbr,long(nmaxlong),
+     # tk_grid(nmaxlong,nmaxz),kdif_grid(nmaxlong,nmaxz),longitude
+       character*(nmaxcharfile) lptfile
+       logical sbrotation
+       logical longeddy
+
+c      nperiod:   number of rotations periods to integrate
+c      nlong:     number of longitudes in grid (time steps per period to integrate)
+c      ostat_sbr: status identifier for output files
+c                 =0:initialize, =1:write results, =2: close files
+c      windspeed: equatorial wind velocity at 1 bar                   [cm s-1]
+c      period:    rotation period of the atmosphere                   [s]
+c      tin_sbr:   saved current time previous to call to DLSODEs      [s]
+c      long:      longitude grid                                      [rad]
+c      tk_grid:   temperature as a function of longitude and pressure [K]
+c      kdif_grid: eddy diffusion as a fct of longitude and pressure   [cm2 s-1]
+c      longitude: longitude at current time (0-2pi)                   [rad]
+c      lptfile:   file with longitude-pressure-temperature structure
+c      sbrotation:.true. solid body rotating atmosphere
+c      longeddy:   .true. use 2d eddy input file
+
+       common/isolidbr/nperiod,nlong,ostat_sbr
+       common/rsolidbr/windspeed,period,tin_sbr,long,tk_grid,
+     # kdif_grid,longitude
+       common/csolidbr/lptfile
+       common/lsolidbr/sbrotation
+       common/lsolidbr/longeddy
+
+c    --------------------------------------------------------------------------
+c
+c      Input/Output files
+c
+       integer ncharmodel
+       character*(nmaxcharfile) inpfile,namemodel,specfile,zabfile,
+     # reacfile(nmaxreacfile),starfile,iphotfile,thermfile,eddyfile
+
+c      ncharmodel:   number of characters of the name of each model (inpfile without extension)
+c      inpfile:      input file for each model
+c      namemodel:    name of each model (inpfile without extension)
+c      specfile:     species file
+c      thermfile:    therm file
+c      zabfile:      (z,p,T) and initial abundances file
+c      reacfile:     input reaction files
+c      starfile:     file with stellar spectrum
+c      iphotfile:    file with the list of photo cross sections used by current model
+c      thermfile:    therm file with NASA polynomial coefficients
+c      eddyfile:     eddy diffusion coefficient profile file
+
+       common/iiounits/ncharmodel
+       common/ciounits/inpfile,namemodel,specfile,zabfile,reacfile,
+     # starfile,iphotfile,thermfile,eddyfile
+
+c    --------------------------------------------------------------------------
+c
+c      Input/Output units
+c
+c      unit=5     ! standar fortran input unit (read from screen)
+c      unit=6     ! standar fortran output unit (write on screen)
+c                 ! replaced in the subroutines by *
+c      unit=1     ! input unit assigned to main input file of ace: 'pac.inp'
+c                 ! open during all the execution of PAC program
+c      unit=2     ! input unit assigned to:  - input file of each model
+c                                            - species file
+c                                            - (z,p,T) file
+c                                            - reaction files
+c                                            - therm file
+c                                            - eddy diffusion coefficient profile file
+c                                            - stellar spectrum file
+c                                            - photo cross section info file
+c      unit=3     ! output unit assigned to: - reactions used file
+c                                            - rate constant warnings file
+c                   input unit assigned to:  - photo cross section files
+c      unit=4     ! output unit assigned to: - abundance results
+c      unit=7     ! output unit assigned to: - file with opacity=1 vs wavelength
+c      unit=8     ! input unit assigned to:  - longitude-pressure-temperature file (lpt)
+c      unit=9     ! output unit assigned to: - file with chemical cooling/heating rate
+c      unit=11-19 ! output units assigned to:- solid body rotation abundance results

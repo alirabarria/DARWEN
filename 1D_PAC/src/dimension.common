@@ -1,0 +1,40 @@
+
+c    --------------------------------------------------------------------------
+c
+c      Array sizes
+c
+       integer nmaxmodel,nmaxcharfile,nmaxspec,nmaxcharspec,nmaxelem,
+     # nmaxelemxs,nmaxreacfile,nmaxreac,nmaxz,nmaxreag,nmaxprod,
+     # nmaxrs,nmaxzs,nmaxlj,nmaxnzjac,nmaxwlth,nmaxxy,nmaxphotoreac,
+     # nmaxrplog,nmaxpref,
+     # nmaxps,nmaxrcoll,nmaxmrcoll,nmaxlong,nmaxphotochannel,
+     # nmaxthtemp
+
+       parameter(nmaxmodel=1000)         ! Maximum number of models requested in chemcloud.INP
+       parameter(nmaxcharfile=80)        ! Maximum number of characters for input/output files names
+       parameter(nmaxspec=200)           ! Maximum number of species
+       parameter(nmaxcharspec=12)        ! Maximum number of characters for species names
+       parameter(nmaxelem=72)            ! Maximum number of elements
+       parameter(nmaxelemxs=10)          ! Maximum number of different elements in one species
+       parameter(nmaxreacfile=10)        ! Maximum number of reaction files
+       parameter(nmaxreac=10000)         ! Maximum number of reaction files
+       parameter(nmaxz=200)              ! Maximum number of heights
+       parameter(nmaxreag=5)             ! Maximum number of reagents per reaction
+       parameter(nmaxprod=5)             ! Maximum number of products per reaction
+       parameter(nmaxrs=2500)            ! Maximum number of reactions involving a given species
+       parameter(nmaxzs=nmaxz*nmaxspec)  ! Maximum number of y_i^j and equations
+       parameter(nmaxlj=52)              ! Maximum number of species with known Lennard-Jones parameters
+       parameter(nmaxnzjac=              ! Maximum number of non null terms in full (nz*nspec) jacobian
+     #  nmaxspec*(nmaxz*(nmaxspec+2)-2))
+       parameter(nmaxwlth=10000)         ! Maximum number of wavelegth points
+       parameter(nmaxxy=100000)          ! Maximum number of (x,y) points to read from various files
+       parameter(nmaxphotoreac=100)      ! Maximum number of cross section photo processes
+       parameter(nmaxps=50)              ! Maximum number of photo reactions involving a given species
+       parameter(nmaxrplog=1000)         ! Maximum number of plog reactions
+       parameter(nmaxpref=20)            ! Maximum number of refernce pressures for plog reactions
+       parameter(nmaxrcoll=1000)         ! Maximum number of collisional reactions
+       parameter(nmaxmrcoll=50)          ! Maximum number of collision bodies M per reaction for which the enhancement factor is known
+       parameter(nmaxlong=500)           ! Maximum number of longitudes in grid
+       parameter(nmaxphotochannel=10)    ! Maximum number of photochemical channels per species
+       parameter(nmaxthtemp=10)          ! Maximum number of temperature ranges for NASA polynomials
+
