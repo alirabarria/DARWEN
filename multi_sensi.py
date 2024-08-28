@@ -1,3 +1,3 @@
-from darwen_functions import *
+from darwen_functions import run_pac
 
 run_pac('sensi_inp', max_processes=12, out_path=Path('1D_PAC'))
