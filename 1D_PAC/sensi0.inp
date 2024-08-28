@@ -1,0 +1,16 @@
+veillet2023.spec                     ! species file
+veillet.zab                  ! z,p,T (initial abundances) file
+2  0  0                            ! No reaction files, (0/1) not/use iondip treatment, print reac warnings
+veillet2023.reac                   ! reaction file
+new_nasa.therm   ! reaction file
+pac_tstar5650g1000teff1400_cte_ext.eddy 0                        ! eddy diffusion coefficient profile file
+Sun_Claire2012.star                           ! stellar spectrum file
+photoreac2020.ipho                 ! photo cross sections info file
+10.000d0 1.0000e-03  100           ! pressure [bar] at bottom/top, No heights
+1.203d0                            ! star radius [R(Sun)]
+15.58d0  232.02d0                  ! planet radius [R(Earth)], planet mass [m(Earth)]
+0.047d0  48.0d0  0.0d0             ! orbital distance [AU], zenith angle [deg], surface albedo
+1  0                               ! deactivate/activate (0/1) diffusion and photochemistry
+2                                  ! numerical method (1/2/3) (-1 is solid body rotation)
+2 0.1 0 36 0                        ! sensitivity analysis deactivate/vary-from-start/vary-all (0/1/2),rate variation,start,end,max_nout
+1e-4 1e-4                          ! RTOL and maxerrstdy for DLSODES and Newton-Raphson
