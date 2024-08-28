@@ -256,57 +256,7 @@ def list_directories_with_string(path, search_string):
 
     return matching_directories
 
-def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, loss=-1,
-                    write_ids=False, imp_mols_flag=True, add_He_reac=False):
-    """
-    Writes a new scheme into files based on reduced sets of reactions and molecules.
 
-    Parameters:
-    - kid_reduc (np.array): Array of reaction IDs to include in the new scheme.
-    - reduc_molecs (np.array): Array of molecule IDs to include in the new scheme.
-    - fname (str): Base filename for the output files (without extension).
-    - verbose (bool): If True, prints additional information during the process.
-    - loss (float): The loss value associated with this scheme, for documentation in the output.
-    - write_ids (bool): If True, writes the reaction IDs into a separate file.
-    - imp_mols_flag (bool): Indicates if the loss pertains only to important molecules.
-    - add_He_reac (bool): If True, artificially adds a Helium reaction to the scheme.
-
-    Returns:
-    None: This function writes to files and does not return any value.
-    """
-    kid_reduc=np.unique(kid_reduc)
-    reduc_molecs=np.unique(reduc_molecs)
-    if write_ids:
-        with open(fname + '.int', 'w') as int_file:
-            np.savetxt(int_file, np.sort(kid_reduc))
-
-    if verbose and loss ==-1:
-        print ('Writing', len(kid_reduc), 'reacs and', len(reduc_molecs), 'species.')
-    elif verbose:
-        print ('Writing', len(kid_reduc), 'reacs and', len(reduc_molecs), 'species and MRE=', loss)
-    new_reacs_file = open(fname+'.reac', 'w')
-    for id_ in np.unique(kid_reduc):
-        new_reacs_file.write(reacs_from_file[id_])
-    if add_He_reac:
-        new_reacs_file.write('He + H2 = He + H2                                  0.00E+00     0.00        0    3 :                        : artificially added to involve He')
-    new_reacs_file.close()
-    new_specs_file = open(fname+'.spec', 'w')
-    if loss != -1:
-        if imp_mols_flag:
-            new_specs_file.write('! imp_loss: '+str(loss)+'\n')
-        else:
-            new_specs_file.write('! loss: '+str(loss)+'\n')
-        for i in range(1,3):
-            new_specs_file.write(specs_lines[i])
-    else:
-        for i in range(0,3):
-            new_specs_file.write(specs_lines[i])
-
-    for m in np.unique(reduc_molecs):
-        new_specs_file.write(specs_from_file[m])
-    if not 'He' in np.unique(reduc_molecs):
-        new_specs_file.write(' He           0.000E+00  -99999.000    -999.000   0.000000  0.000000    0     1     1    He  1')
-    new_specs_file.close()
 
 
 
@@ -433,30 +383,24 @@ def network_to_df(fname='1D_PAC/venot2020reduced.reac', start_i=11, mid_i=257, a
 
         else:
             i+=1
-            if i < len(vreduc_lines):
-                while len(vreduc_lines[i][:4].replace(' ', '')) == 0:
-
-                    i+=1      
-                c+=1
+            while (i < len(vreduc_lines) and len(vreduc_lines[i][:4].replace(' ', '')) == 0):
+                i+=1      
+            c+=1
     reacs_df.index = range(len(reacs_df))
     return reacs_df
 
 
-reacs_in_venot = network_to_df()
-reacs_in_lira = network_to_df(fname='1D_PAC/lira_val2024.reac', start_i=0, mid_i=247)
-reacs_in_full = network_to_df(fname='1D_PAC/venot2020.reac', start_i=0, mid_i=837, add_col='')
 
 
-
-def add_id(reacs_in_venot, reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
-           check_tol = 1e-4, signal_wrong_ids=True):
+def add_id(reacs_in_venot=[], reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
+           check_tol = 1e-4, signal_wrong_ids=True, id_col='id', mid_id = 837):
     reacs_from_file = {}
     reacs_file = open(reacs_full_fname, 'r')
     reacs_lines = reacs_file.readlines()
     i = 0
     c = 0
     while i < len(reacs_lines):
-        if i < 837:
+        if i < mid_id:
             reacs_from_file[c] = reacs_lines[i]
             c+=1
             i+=1
@@ -473,13 +417,16 @@ def add_id(reacs_in_venot, reacs_full_fname='1D_PAC/venot2020.reac', force_id=Fa
 
                 reacs_from_file[c] = to_dict       
                 c+=1
-        reacs, prods, rtype, alpha, beta, gamma = extract_molecs(reacs_from_file[c-1], return_arrehnius=True)
-        for ind, row in reacs_in_venot.iterrows():
-            if np.all(reacs == eval(row['reacs'])) and np.all(prods == eval(row['prods'])):
-                if abs(alpha - float(row['alpha'])) < check_tol or force_id:
-                    reacs_in_venot.at[ind, 'id'] = c - 1
+        if len(reacs_in_venot) > 0:
+            reacs, prods, rtype, alpha, beta, gamma = extract_molecs(reacs_from_file[c-1], return_arrehnius=True)
+            venot_candidates = reacs_in_venot[(reacs_in_venot.reacs==str(reacs)) & (reacs_in_venot.prods==str(prods))]
+            if len(venot_candidates) > 0:
+                ind = venot_candidates.index[0]
+                alpha_row = venot_candidates.iloc[0]['alpha']
+                if abs(alpha - float(alpha_row)) < check_tol or force_id:
+                    reacs_in_venot.at[ind, id_col] = c - 1
                 elif signal_wrong_ids:
-                    print ('signaling:', ind, c - 1, row['alpha'], alpha)
+                    print ('signaling:', ind, c - 1, alpha_row, alpha)
     return reacs_in_venot, reacs_from_file
 
 
@@ -741,7 +688,7 @@ def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', '
                                                      'Ar', 'N2', 'He', 'C2H4', 'benzene', 'toluene', 
                                                      'H2O2', 'N2O', 'O3P', 'NH3', 'N2H4', 'N2O4', 
                                                      'NO2', 'NO', 'N4S'],
-                      columns=['reacs', 'prods', 'alpha', 'beta', 'gamma', 'Troe', 'SRI', 'Inf', 'feff', 'prefs', 'alphas',
+                      columns=['reacs', 'prods', 'alpha', 'beta', 'gamma', 'Troe', 'SRI', 'k_inf', 'feff', 'prefs', 'alphas',
                                             'betas', 'gammas', 'F', 'g', 'F_inf', 'g_inf'] ):
     
 
@@ -796,7 +743,7 @@ def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', '
             elif i in [5, 7, 11]: #Reversible combination reactions - Troe formalism, Reversible combination reactions with specific third-body - Troe formalism, Reversible decomposition reactions - Troe formalism
                 # Alpha_0   Beta_0   Gamma_0   F_0   g_0   Alpha_inf   Beta_inf   Gamma_inf   F_inf  g_inf   A_Troe   B_Troe   C_Troe   D_Troe   Efficiencies
                 alpha, beta, gamma, F, g = params[:5]
-                data_from_venot.at[c, 'Inf'] = params[5:8]
+                data_from_venot.at[c, 'k_inf'] = params[5:8]
                 data_from_venot.at[c, 'F_inf'] = params[8]
                 data_from_venot.at[c, 'g_inf'] = params[9]
                 data_from_venot.at[c, 'Troe'] = params[10:14]
@@ -808,7 +755,7 @@ def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', '
             elif i in [6, 12]: #Reversible combination reactions - SRI formalism, Reversible decomposition reactions - SRI formalism
                 # Alpha_0   Beta_0   Gamma_0   F_0   g_0   Alpha_inf   Beta_inf   Gamma_inf   F_inf  g_inf  A_SRI   B_SRI   C_SRI   D_SRI   E_SRI   Efficiencies
                 alpha, beta, gamma, F, g = params[:5]
-                data_from_venot.at[c, 'Inf'] = params[5:8]
+                data_from_venot.at[c, 'k_inf'] = params[5:8]
                 data_from_venot.at[c, 'F_inf'] = params[8]
                 data_from_venot.at[c, 'g_inf'] = params[9]
                 data_from_venot.at[c, 'SRI'] = params[10:15]
@@ -827,8 +774,8 @@ def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', '
             c+=1
     return data_from_venot
 
-reacs_in_venot, reacs_from_file = add_id(reacs_in_venot)
-reacs_in_lira, _ = add_id(reacs_in_lira)
+
+
 
 specs_file = open('1D_PAC/venot2020.spec', 'r')
 specs_lines = specs_file.readlines()
@@ -837,7 +784,7 @@ for i in range(3,len(specs_lines)):
     sp = specs_lines[i].split(' ')[1]
     specs_from_file[sp] = specs_lines[i]
 
-data_from_venot = obtain_unc_factors()
+
 
 def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
     for ind, row in reacs_in_lira.iterrows():
@@ -868,8 +815,8 @@ def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
         reacs_in_lira.at[ind, 'g_inf'] = g_inf
     return reacs_in_lira
 
-reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
-reacs_in_full = add_Fg(reacs_in_full, data_from_venot)
+
+
 
 abun_df, cons_err, _ = out_to_dfs('1D_PAC/hd2094_optval_0905', error_purposes=True, return_only_mols=False)
 abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
@@ -922,8 +869,83 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
         reacs_in_lira.at[ind, 'unc_min'] = unc_min
     return reacs_in_lira
 
-reacs_in_lira = add_params(reacs_in_lira=reacs_in_lira, abun_df=abun_df)
-reacs_in_full = add_params(reacs_in_lira=reacs_in_full, abun_df=abun_df)
+data_from_venot = obtain_unc_factors()
+if ((os.path.exists('reacs_in_lira.csv') and os.path.exists('reacs_in_full.csv'))):
+    reacs_in_venot = pd.read_csv('reacs_in_venot.csv')
+    _, reacs_from_file = add_id(reacs_in_venot)
+    reacs_in_lira = pd.read_csv('reacs_in_lira.csv')
+    reacs_in_full = pd.read_csv('reacs_in_full.csv')
+
+else:
+    reacs_in_venot = network_to_df()
+    reacs_in_venot, reacs_from_file = add_id(reacs_in_venot)
+
+    reacs_in_lira = network_to_df(fname='1D_PAC/lira_val2024.reac', start_i=0, mid_i=247)
+    reacs_in_full = network_to_df(fname='1D_PAC/venot2020.reac', start_i=0, mid_i=837, add_col='')
+
+    reacs_in_lira, _ = add_id(reacs_in_lira)
+    reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
+    reacs_in_lira = add_params(reacs_in_lira=reacs_in_lira, abun_df=abun_df)
+
+    reacs_in_full = add_Fg(reacs_in_full, data_from_venot)
+    reacs_in_full = add_params(reacs_in_lira=reacs_in_full, abun_df=abun_df)
+
+    reacs_in_lira.to_csv('reacs_in_lira.csv', index=False)
+    reacs_in_full.to_csv('reacs_in_full.csv', index=False)
+    reacs_in_venot.to_csv('reacs_in_venot.csv', index=False)
+
+def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, loss=-1,
+                    write_ids=False, imp_mols_flag=True, add_He_reac=False,
+                    reacs_from_file=reacs_from_file):
+    """
+    Writes a new scheme into files based on reduced sets of reactions and molecules.
+
+    Parameters:
+    - kid_reduc (np.array): Array of reaction IDs to include in the new scheme.
+    - reduc_molecs (np.array): Array of molecule IDs to include in the new scheme.
+    - fname (str): Base filename for the output files (without extension).
+    - verbose (bool): If True, prints additional information during the process.
+    - loss (float): The loss value associated with this scheme, for documentation in the output.
+    - write_ids (bool): If True, writes the reaction IDs into a separate file.
+    - imp_mols_flag (bool): Indicates if the loss pertains only to important molecules.
+    - add_He_reac (bool): If True, artificially adds a Helium reaction to the scheme.
+
+    Returns:
+    None: This function writes to files and does not return any value.
+    """
+    kid_reduc=np.unique(kid_reduc)
+    reduc_molecs=np.unique(reduc_molecs)
+    if write_ids:
+        with open(fname + '.int', 'w') as int_file:
+            np.savetxt(int_file, np.sort(kid_reduc))
+
+    if verbose and loss ==-1:
+        print ('Writing', len(kid_reduc), 'reacs and', len(reduc_molecs), 'species.')
+    elif verbose:
+        print ('Writing', len(kid_reduc), 'reacs and', len(reduc_molecs), 'species and MRE=', loss)
+    new_reacs_file = open(fname+'.reac', 'w')
+    for id_ in np.unique(kid_reduc):
+        new_reacs_file.write(reacs_from_file[id_])
+    if add_He_reac:
+        new_reacs_file.write('He + H2 = He + H2                                  0.00E+00     0.00        0    3 :                        : artificially added to involve He')
+    new_reacs_file.close()
+    new_specs_file = open(fname+'.spec', 'w')
+    if loss != -1:
+        if imp_mols_flag:
+            new_specs_file.write('! imp_loss: '+str(loss)+'\n')
+        else:
+            new_specs_file.write('! loss: '+str(loss)+'\n')
+        for i in range(1,3):
+            new_specs_file.write(specs_lines[i])
+    else:
+        for i in range(0,3):
+            new_specs_file.write(specs_lines[i])
+
+    for m in np.unique(reduc_molecs):
+        new_specs_file.write(specs_from_file[m])
+    if not 'He' in np.unique(reduc_molecs):
+        new_specs_file.write(' He           0.000E+00  -99999.000    -999.000   0.000000  0.000000    0     1     1    He  1')
+    new_specs_file.close()
 
 
 
