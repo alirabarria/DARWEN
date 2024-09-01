@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import sys
 
 from Scheme import *
 
@@ -29,7 +30,8 @@ class Darwen:
                 curious_pool_ratio=1/20, filter_ids_mode='sum', plt_show=False, hide_output=False,
                 max_comb_crossover=200, photo_flag=False, single_planet_flag=False, curiosity_factor=1,
                 max_curious_ids=3, always_deterministic=True, n_before_wheel=2,
-                extended_range_flag=False, add_per_delta=5, change_imp_molecs_flag=False):
+                extended_range_flag=False, add_per_delta=5, change_imp_molecs_flag=False,
+                reacs_dict=reacs_from_file):
         
         """
         Initializes the Darwen class, which is designed to optimize chemical reaction schemes using a genetic algorithm.
@@ -139,6 +141,7 @@ class Darwen:
         self.not_imp_molecs = self.all_molecs[not_imp_molecs_mask]
 
         self.reacs_df = reacs_df
+        self._reacs_dict = reacs_dict
         self.best_loss, self.old_losses = ( big_loss_def*np.ones((n_fittest, 3)) for i in range(2))
 
         
@@ -147,6 +150,7 @@ class Darwen:
         
         self.initial_loss = big_loss_def
         self._run_counter = 0
+        self._start_id = 0
 
         self.schemes_path, self.temp_path, self.rosetta_path = self._handle_dir(saved_schemes_path
                                                             ), self._handle_dir(temp_path
@@ -194,7 +198,8 @@ class Darwen:
             
         elif len(initial_reacs)>0:
             self.initial_scheme = Scheme(initial_reacs, self._molecs_from_ids(initial_reacs), self.master_df, search_first=self.params['search_schemes_first'],
-                                        schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'])
+                                        schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'],
+                                        reacs_dict = self._reacs_dict)
             self.initial_loss= initial_loss
             
         else:
@@ -202,7 +207,7 @@ class Darwen:
                 np.random.seed(self._seed+1)
             initial_reacs = np.random.permutation(range(len_reacs))[:100]
             self.initial_scheme = Scheme(initial_reacs, self._molecs_from_ids(initial_reacs), self.master_df, search_first=self.params['search_schemes_first'],
-                                        schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'],)
+                                        schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'], reacs_dict = self._reacs_dict)
         
         if self.min_is_better:
             self.optimate_loss = np.min([big_loss_def, self.initial_loss])
@@ -243,7 +248,7 @@ class Darwen:
             best_ids = self.best_schemes_df['ids']
             num_reacs = self.params['len_reacs']
             self.ids_df = pd.DataFrame(np.zeros((num_reacs, num_reacs)), columns=range(num_reacs), index=range(num_reacs))
-            for i in range(num_reacs):
+            for i in range(int(num_reacs)):
                 if not self.params['silent'] and verbose:
                     if i%100 == 0:
                         print (int(i/num_reacs*100), '%', end=' ', file=self._out_file)
@@ -350,6 +355,8 @@ class Darwen:
                 print ('Total loss:', scheme.loss, ' weighting as', self.params['weight_by'], file=self._out_file)
             print('.........................................................................................................', file=self._out_file)
             print(file=self._out_file)
+            print(self.imp_molecs, 'there?', file=self._out_file)
+            print([m in scheme.molecs for m in self.imp_molecs], file=self._out_file)
             if self._hide_output: self._out_file.flush()
         except Exception:
             print ("Couldn`t print", file=self._out_file)
@@ -371,104 +378,105 @@ class Darwen:
             useful_df = self.master_df[self.master_df != 'Not saved']
         else:
             useful_df = self.master_df
+        try:
+            pop_df = useful_df[[init_str in str(aux) for aux in useful_df['fname_key']]]
+            if filter_by_date:
+                today = str(date.today())
+                yest = get_yesterday(today)
+                pop_df = pop_df[[aux == today or aux == yest for aux in pop_df['date']]]
 
-        pop_df = useful_df[[init_str in aux for aux in useful_df['fname_key']]]
-        if filter_by_date:
-            today = str(date.today())
-            yest = get_yesterday(today)
-            print (today, yest)
-            pop_df = pop_df[[aux == today or aux == yest for aux in pop_df['date']]]
+            for index, row in pop_df.iterrows():
+                genes = row['genes']
+                if isinstance(genes, str):
+                    genes=genes.replace(' ',',')
 
-        for index, row in pop_df.iterrows():
-            genes = row['genes']
-            if isinstance(genes, str):
-                genes=genes.replace(' ',',')
+                try:
+                    better_genes = from_df_to_array(genes)
+                    better_genes = np.array(better_genes).astype(int)
+                    pop_df.at[index, 'genes'] = better_genes
+                except Exception as e:
+                    print ('problem', index, genes)
+                    print(repr(e))
 
-            try:
-                better_genes = from_df_to_array(genes)
-                better_genes = np.array(better_genes).astype(int)
-                pop_df.at[index, 'genes'] = better_genes
-            except Exception as e:
-                print ('problem', index, genes)
-                print(repr(e))
+            genes_array = np.zeros((len(pop_df), self.params['len_reacs']))
+            for i in range(len(pop_df['genes'].values)):
+                genes_array[i] = pop_df['genes'].values[i]
+            genes_df = pd.DataFrame(genes_array, columns=range(self.params['len_reacs']))
+            genes = []
+            losses = []
+            for i in range(n_pops):
+                pop_str = '-'+str(i)+'_'
+                mask_pop = [pop_str in aux for aux in pop_df['fname_key']]
+                this_pop_genes = genes_df[mask_pop]
+                this_pop_df = pop_df[mask_pop]
+                if len(this_pop_df) == 0:
+                    break
+                genes_av = this_pop_genes.mean().values
 
-
-            
-        
-        
-        genes_array = np.zeros((len(pop_df), 958))
-        for i in range(len(pop_df['genes'].values)):
-            genes_array[i] = pop_df['genes'].values[i]
-        genes_df = pd.DataFrame(genes_array, columns=range(958))
-        genes = []
-        losses = []
-        for i in range(n_pops):
-            pop_str = '-'+str(i)+'_'
-            mask_pop = [pop_str in aux for aux in pop_df['fname_key']]
-            this_pop_genes = genes_df[mask_pop]
-            this_pop_df = pop_df[mask_pop]
-            if len(this_pop_df) == 0:
-                break
-            genes_av = this_pop_genes.mean().values
-
-            if use_real_losses:
-                aux_losses = []
-                for larray in this_pop_df['losses']:
-                    aux_losses.append(from_df_to_array(larray)[0])
-                aux_losses = np.array(aux_losses)
-                count_min = np.sum(aux_losses<loss_thresholds[0] )/len(aux_losses)
-                if len(aux_losses) > 0:
-                    min_loss = np.min(aux_losses)
+                if use_real_losses:
+                    aux_losses = []
+                    for larray in this_pop_df['losses']:
+                        aux_losses.append(from_df_to_array(larray)[0])
+                    aux_losses = np.array(aux_losses)
+                    count_min = np.sum(aux_losses<loss_thresholds[0] )/len(aux_losses)
+                    if len(aux_losses) > 0:
+                        min_loss = np.min(aux_losses)
+                    else:
+                        min_loss = self.params['big_loss_def']
+                    
+                    losses.append([min_loss, count_min])
                 else:
-                    min_loss = self.params['big_loss_def']
+                    aux_add = []
+                    aux_add.append(this_pop_df['loss'].min())
+                    for lt in loss_thresholds:
+                        aux_add.append(np.sum(this_pop_df['loss']<lt)/len(this_pop_df))
+                    losses.append(aux_add)
+                genes.append(genes_av)
                 
-                losses.append([min_loss, count_min])
+                
+
+            genes = np.array(genes)
+            losses = np.array(losses)
+            fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(7,13),  gridspec_kw=gridspec_kw)
+            ax_loss = axes[0,0]
+            ax_count = axes[1,0]
+            ax = axes[2,0]
+            cax = axes[2,1]
+            
+            axes[0,1].set_visible(False)
+            axes[1,1].set_visible(False)
+            trans_genes = genes.transpose()
+            
+            ax_loss.plot(range(len(losses)), losses[:, 0], '*-', color=colors[0])
+
+            for l in range(len(loss_thresholds)):
+                lt = loss_thresholds[l]
+                ax_count.plot(range(len(losses)), losses[:, l+1]*100, '.-', color=colors[l+1], label=lt)
+            ax_count.legend(loc='upper left', bbox_to_anchor=legend_coords)
+            ax_count.set_ylabel(r'$\% <$')
+            ax_loss.set_ylabel(r'$\varphi$')
+
+            sns.heatmap(trans_genes, cmap=cmap_color, ax=ax, cbar=False)
+            fig.colorbar(ax.get_children()[0], cax=cax, orientation="vertical")
+            ax.set_xlabel('Generation ID (~convergence time)' )
+            ax.set_ylabel('Reaction ID')
+            if init_str=='':
+                to_title = 'Genes evolution for '+str(planets)
             else:
-                aux_add = []
-                aux_add.append(this_pop_df['loss'].min())
-                for lt in loss_thresholds:
-                    aux_add.append(np.sum(this_pop_df['loss']<lt)/len(this_pop_df))
-                losses.append(aux_add)
-            genes.append(genes_av)
-            
-            
-
-        genes = np.array(genes)
-        losses = np.array(losses)
-        fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(7,13),  gridspec_kw=gridspec_kw)
-        ax_loss = axes[0,0]
-        ax_count = axes[1,0]
-        ax = axes[2,0]
-        cax = axes[2,1]
-        
-        axes[0,1].set_visible(False)
-        axes[1,1].set_visible(False)
-        trans_genes = genes.transpose()
-        
-        ax_loss.plot(range(len(losses)), losses[:, 0], '*-', color=colors[0])
-
-        for l in range(len(loss_thresholds)):
-            lt = loss_thresholds[l]
-            ax_count.plot(range(len(losses)), losses[:, l+1]*100, '.-', color=colors[l+1], label=lt)
-        ax_count.legend(loc='upper left', bbox_to_anchor=legend_coords)
-        ax_count.set_ylabel(r'$\% <$')
-        ax_loss.set_ylabel(r'$\varphi$')
-
-        sns.heatmap(trans_genes, cmap=cmap_color, ax=ax, cbar=False)
-        fig.colorbar(ax.get_children()[0], cax=cax, orientation="vertical")
-        ax.set_xlabel('Generation ID (~convergence time)' )
-        ax.set_ylabel('Reaction ID')
-        if init_str=='':
-            to_title = 'Genes evolution for '+str(planets)
-        else:
-            to_title = 'Genes evolution for a single run of '+str(planets)
-        ax_loss.set_title(to_title)
-        plt.setp(ax_loss.get_xticklabels(), visible=False)
-        if len(adjust) > 0:
-            plt.subplots_adjust(bottom=adjust[0], top=adjust[1], left=adjust[2], right=adjust[3])
-        fig.savefig(fname)
-        if self.params['plt_show']:
-            plt.show()
+                to_title = 'Genes evolution for a single run of '+str(planets)
+            ax_loss.set_title(to_title)
+            plt.setp(ax_loss.get_xticklabels(), visible=False)
+            if len(adjust) > 0:
+                plt.subplots_adjust(bottom=adjust[0], top=adjust[1], left=adjust[2], right=adjust[3])
+            fig.savefig(fname)
+            if self.params['plt_show']:
+                plt.show()
+        except Exception as e:
+            print (useful_df['fname_key'].values)
+            print(repr(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno, file=self._out_file)
             
     def best_schemes_hist(self, scheme_list, figsize=(13,7), merge_fn=np.max, min_len=30, max_len=55, big_loss_def=1e5, 
                           fname='1D_PAC/best_hist_', 
@@ -536,7 +544,8 @@ class Darwen:
         initial_scheme = Scheme(ids_scheme, mols_to_return, self.master_df, scheme_id=0, out_path=self.temp_path, 
                                 search_first=self.params['search_schemes_first'], len_reacs=self.params['len_reacs'],
                                 schemes_path=self.schemes_path, parent_key='big_bang', planets=self.params['planets'],
-                                )
+                                reacs_dict = self._reacs_dict)
+                                
         if get_loss:
             
             init_str = dir_to_check.split('/')[1]
@@ -607,7 +616,8 @@ class Darwen:
                                         planets=self.params['planets'], len_ids_pool=len(offspring_ids), 
                                         search_first=search_schemes_first,
                                         schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'],
-                                       )
+                                        reacs_dict = self._reacs_dict)
+                                       
                     loss_there = False
                     if new_scheme._found or not search_schemes_first:
                         if search_schemes_first:
@@ -628,13 +638,19 @@ class Darwen:
     
     
     def _get_reacs_pool(self, reacs_array, molec_array, force_total_pool=False):
-        reacs_pool = []
-        for j in range(self.params['len_reacs']):
-            if not j in reacs_array or force_total_pool:
-                add_to_pool = np.all([m in molec_array for m in self.reacs_df.at[j,'molecs']])
-                if add_to_pool:
-                    reacs_pool.append(j)
-        return reacs_pool
+        if force_total_pool:
+            this_pool_df = self.reacs_df[[np.all([m in molec_array for m in aux]) for aux in self.reacs_df.molecs]]
+            return this_pool_df.index.values
+        else:
+            reacs_pool = []
+            for j in range(self.params['len_reacs']):
+                if not j in reacs_array:
+                    add_to_pool = np.all([m in molec_array for m in self.reacs_df.at[j,'molecs']])
+                    if add_to_pool:
+                        reacs_pool.append(j)
+            return reacs_pool
+    
+        
         
     def _add_reacs(self, reacs_array, molec_array, reacs_pool, mutation_int=10, add_seed=0,
                     smart_threshold=1e5, curious_pool_ratio=.25, max_ids_per_reac=2, mode='random',
@@ -717,10 +733,18 @@ class Darwen:
         if add_len < 0 and molecs_low_limit < len(molec_array):
             if self._seed > -1:
                 np.random.seed(self._seed+5)
-            molec_array = np.random.choice(molec_array, size = new_len, replace=False)
+            not_imp_mask = np.array([m in self.not_imp_molecs for m in molec_array])
+            not_imp_array = molec_array[not_imp_mask]
+            keep_len = new_len - len(self.imp_molecs)
+            if keep_len < len(not_imp_array):
+                not_imp_array = np.random.choice(not_imp_array, size = keep_len, replace=False)
+            else:
+                print('Dimensions problem of molecs')
+            molec_array = np.append(self.imp_molecs, not_imp_array)
             reacs_pool = self._get_reacs_pool(reacs_array, molec_array, force_total_pool=True)
-            mask_allow = [aux in reacs_pool for aux in reacs_array]
+            mask_allow = [int(aux) in reacs_pool for aux in reacs_array]
             reacs_array = reacs_array[mask_allow]
+            molec_array = self._molecs_from_ids(reacs_array)
             
             
         elif add_len > 0 and (len(molec_array) <= molecs_high_limit and len(molecs_pool) > add_len):
@@ -750,11 +774,11 @@ class Darwen:
         
         
     def mendel(self, reacs_array, molec_array, mutate_mols=True, n_population=10, mutation_rate=0, kill_rate=0, 
-               verbose=False, forbid_crossover=False,
-               ensure_uniqueness=False, pop_str='pop0', parent_key='', parent_loss=1e5,
-               start_id=0, boost_mols=True, ensure_n_mols=True, smart_mode='sometimes', smart_threshold=1000, 
+               verbose=False, forbid_crossover=False, ensure_uniqueness=False, pop_str='pop0', 
+               parent_key='', parent_loss=1e5, boost_mols=True, ensure_n_mols=True, smart_mode='sometimes', smart_threshold=1000, 
                max_threshold_ids=3, curious_pool_ratio=0.25, always_curiosity=True, forbid_self_mutation=False,
-               max_curious_ids=5, hide_warning=True):
+               max_curious_ids=5, hide_warning=True, ensure_molecs_match=True, double_check_molecs=True,
+               compensate = 0):
         
         """
             Applies genetic operations to evolve a population of chemical schemes towards better fitness.
@@ -769,7 +793,6 @@ class Darwen:
             verbose (bool): If True, prints detailed logs about the genetic operations. Default is False.
             ensure_uniqueness (bool): Ensures that only unique reactions and molecules are considered. Default is True.
             pop_str (str): Population string identifier for naming and tracking. Default is 'pop0'.
-            start_id (int): Starting ID for schemes generated in this population. Helps in tracking and uniqueness.
             boost_mols (bool): If True, increases the diversity of molecules during mutation. Default is True.
             ensure_n_mols (bool): Ensures the number of molecules stays within specified limits. Default is True.
             parent_key (str): A string identifier for the parent scheme, used in logging and tracking the evolution.
@@ -783,6 +806,14 @@ class Darwen:
                 if self._hide_output: self._out_file.flush()
             reacs_array = np.unique(reacs_array)
             molec_array = np.unique(molec_array)
+        if ensure_molecs_match:
+            lmols = len(molec_array)
+            old_mols = np.copy(molec_array)
+            new_molec_array = self._molecs_from_ids(reacs_array)
+            if lmols != len(new_molec_array):
+                print ('Initial species do not match?')
+                print (lmols, old_mols)
+                print(len(new_molec_array), new_molec_array)
         molec_array0 = np.copy(molec_array)
         schemes = []
         reacs_array0 = np.copy(reacs_array)
@@ -794,7 +825,14 @@ class Darwen:
         if verbose:
             print ('Initial scheme has', len(molec_array), 'molecs and', len(reacs_array), 'reactions.', file=self._out_file)
             if self._hide_output: self._out_file.flush()
-
+        discarded = 0
+        found_loss = 0
+        if compensate > 1:
+            n_population = int(compensate*n_population)
+            
+        
+        mutation_ints = []
+        killing_ints = []
         for i in range(n_population):      
             if mutate_mols:
                 reacs_array, molec_array = self._mutate_mols(reacs_array, molec_array, boost=False, 
@@ -833,14 +871,11 @@ class Darwen:
                 if self._seed > -1:
                     np.random.seed(self._seed+7)
                 reacs_array = np.random.choice(reacs_array, size=len(reacs_array) - killing_int, replace=False)
-                if verbose and i==0:
-                    print ('Killing will delete ~', killing_int, 'reactions.', file=self._out_file)
-                    if self._hide_output: self._out_file.flush()
+                killing_ints.append(killing_int)
+            else:
+                killing_ints.append(0)
                 
-            if verbose and i==0:
-                print ('Mutation will add ~', mutation_int, 'reactions.', file=self._out_file)
-                print (file=self._out_file)
-                if self._hide_output: self._out_file.flush()
+            mutation_ints.append(mutation_int)
             
             mode='random'
             parent_key0 = parent_key
@@ -872,12 +907,13 @@ class Darwen:
                                                        smart_threshold=smart_threshold, 
                                                        max_ids_per_reac=max_threshold_ids)
 
-            molec_array = molec_array
-            scheme_i = Scheme(reacs_array, molec_array, self.master_df, parent_key=parent_key, scheme_id=i+start_id, out_path=self.temp_path, 
+            scheme_i = Scheme(reacs_array, molec_array, self.master_df, parent_key=parent_key, scheme_id=i+self._start_id, out_path=self.temp_path, 
                               pop_str=pop_str, parent_loss=parent_loss, len_reacs=self.params['len_reacs'],
                               planets=self.params['planets'], len_ids_pool=len(reacs_pool), search_first=self.params['search_schemes_first'],
-                              schemes_path=self.schemes_path, curiosity=curiosity)
-            
+                              schemes_path=self.schemes_path, curiosity=curiosity,
+                              reacs_dict = self._reacs_dict)
+
+               
             n_fittest = self.params['n_fittest']
             if np.random.randint(0, int(n_population*n_fittest)
                                  ) < self.params['mutation_prob']*n_population*n_fittest and not forbid_self_mutation:
@@ -885,20 +921,25 @@ class Darwen:
                 scheme_i.molecs = self._molecs_from_ids(scheme_i.ids)
                 _ = scheme_i.search_scheme(self.schemes_path, self.master_df)
 
+            elif double_check_molecs:
+                scheme_i.molecs = self._molecs_from_ids(scheme_i.ids)
+
             lmols = len(scheme_i.molecs)
             in_mols_range = (self.params['molecs_low_limit']<= lmols and lmols <= self.params['molecs_high_limit']) or not ensure_n_mols
-            c = 0
-            if in_mols_range:
+            imp_molecs_flag = np.all([m in scheme_i.molecs for m in self.imp_molecs])
+            if in_mols_range and imp_molecs_flag:
                 loss_there = False
                 if scheme_i._found:
                     loss_type = self.params['fitness_metric']+'-'+self.params['weight_by']
                     loss_there = scheme_i._found_data['directory'] != 'Not saved' or scheme_i._found_data['loss_type'] == loss_type
+                    found_loss +=1
                 if not loss_there:
                     scheme_i._write_scheme(write_ids=False, check_dir=True, init_str=pop_str, imp_mols_flag=self.measure_only_imp,
                                                    templates=self._templates)
-                    c+=1
-            if in_mols_range:
+                    self._run_counter+=1
                 schemes.append(scheme_i)
+            else:
+                discarded +=1
             
             molec_array = molec_array0
             reacs_array = reacs_array0
@@ -906,21 +947,28 @@ class Darwen:
             kill_rate = kill_rate0
             if mode != 'random':
                 parent_key=parent_key0
-            self._run_counter+=c
             
+        self._start_id += n_population
+        if first and verbose:
+            print ('Killing will delete ~', int(np.median(killing_ints)), 'reactions.', file=self._out_file)
+            print ('DARWEN will add ~', int(np.median(mutation_ints)), 'reactions.', file=self._out_file)
+            print (file=self._out_file)
+            print ('discarded:', discarded, 'found_loss:', found_loss, file=self._out_file)
+            if self._hide_output: self._out_file.flush()
         return schemes
 
     
     
-    def _write_schemes(self, reset_init=True, opt_id='', init_str='opt', write_all_best=True, loss_threshold=1.5):
+    def _write_schemes(self, reset_init=True, opt_id='', init_str='opt', write_all_best=True, loss_threshold=1.0):
         print ('Writing best schemes', file=self._out_file)
         if self._hide_output: self._out_file.flush()
         ind_best_scheme = -1
         if write_all_best:
             for best_scheme in self.best_schemes_log:
-                self.master_df = best_scheme.save_scheme(self.master_df, templates=self._templates, imp_mols_flag=self.measure_only_imp, save_threshold=loss_threshold,
-                                                        weights=self.params['weight'], photo_flag=self.params['photo_flag'],
-                                                        single_planet_flag=self.params['single_planet_flag'], model_dict=self.params)
+                self.master_df = best_scheme.save_scheme(self.master_df, templates=self._templates, imp_mols_flag=self.measure_only_imp, 
+                                            save_threshold=loss_threshold, weights=self.params['weight'], 
+                                            photo_flag=self.params['photo_flag'], single_planet_flag=self.params['single_planet_flag'], 
+                                            model_dict=self.params)
             self.master_df.to_csv(self._master_df_path, index=False)
             
             
@@ -944,6 +992,7 @@ class Darwen:
         self.optimate_scheme._write_scheme(write_ids=True, check_dir=True, init_str=init_str+opt_id+str(self._cwrite), 
                                            imp_mols_flag=self.measure_only_imp, out_path=self.rosetta_path, 
                                            templates=self._templates)
+        print (self.optimate_scheme.fname_key)
         
         
         self._cwrite+=1
@@ -1012,7 +1061,7 @@ class Darwen:
                 smart_mode = 'never'
             new_schemes = self.mendel(self.initial_scheme.ids, self.initial_scheme.molecs,
                                             mutate_mols=self.params['start_changing_mols'], 
-                                            n_population=self.params['init_population'],
+                                            n_population=self.params['init_population'], compensate=2,
                                             mutation_rate=self.params['initial_mutation_rate'],
                                             kill_rate=self.params['initial_kill_rate'], verbose=True,
                                             pop_str=pop_str, parent_key=self.params['initial_scheme_dir'].split('/')[1],
@@ -1208,6 +1257,7 @@ class Darwen:
                     new_best_schemes = self.best_schemes
                     
                 number_of_mols, number_of_reacs, imp_molecs_present, new_schemes = ([] for j in range(4))
+                self._start_id = 0
  
                 for initial_scheme in new_best_schemes:
                     imp_molecs_present.append(np.all([m in initial_scheme.molecs for m in self.imp_molecs]))
@@ -1219,14 +1269,16 @@ class Darwen:
                                             n_population=n_population,
                                             mutation_rate=self.params['mutation_rate'],
                                             kill_rate=self.params['kill_rate'], verbose=False,
-                                            pop_str=pop_str, start_id=len(new_schemes),
+                                            pop_str=pop_str, 
                                             parent_key=initial_scheme._fname_key,
                                             smart_mode=smart_mode,
                                             max_threshold_ids=self.params['max_smart_ids_per_reac'],
                                             smart_threshold=self.params['filter_ids_threshold'],
                                             parent_loss=initial_scheme.loss, ensure_n_mols=True,
+                                            compensate=1.7
                                             
                                             )
+                    print (self._start_id)
 
                     new_schemes.extend(schemes)
                     number_of_reacs.append(len(initial_scheme.ids))
@@ -1294,19 +1346,19 @@ if __name__ == "__main__":
     pop_prefix = datetime.now().strftime("pop%H%M-")
 
     if photochem:
-        initial_dir = '1D_PAC/opt0705_photo'   
+        initial_dir = '1D_PAC/opt_photo_hd2094'
     else:
         initial_dir = '1D_PAC/pca_alone46'
 
     if small_run:
         init_population, n_fittest, n_population, n_iterations = 25, 5, 5, 5
     else:
-        init_population, n_fittest, n_add, n_population, n_iterations = 500, 25, 2, 15, -1
+        init_population, n_fittest, n_add, n_population, n_iterations = 700, 23, 2, 20, -1
 
-    GA = Darwen(mutation_rate=0.1, mutation_prob =.2, crossover_prob= 0.4, kill_rate=0.15, 
+    GA = Darwen(mutation_rate=0.1, mutation_prob =.2, crossover_prob= 0.4, kill_rate=0.1, 
                 mod_elitism=7, n_crossover=1e3, 
-                initial_mutation_rate=0.2, initial_kill_rate=0.1, 
-                molecs_low_limit=30, molecs_high_limit=50, weight=[1e-2, 1],  
+                initial_mutation_rate=0.2, initial_kill_rate=0.15, 
+                molecs_low_limit=30, molecs_high_limit=55, weight=[1e-2, 1],  
                 pop_prefix=pop_prefix, search_schemes_first=True, planets=planets,
                 init_population=init_population, n_fittest=n_fittest, n_population=n_population,
                 initial_scheme_dir=initial_dir, full_dirs=full_dirs, templates=templates, 

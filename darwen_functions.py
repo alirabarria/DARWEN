@@ -8,6 +8,7 @@ from sklearn.metrics import r2_score, mean_absolute_percentage_error
 
 imp_molecs = ['H2O', 'CH4', 'CO', 'CO2', 'NH3', 'HCN', 'C2H2', 'OH']
 all_molecs = np.genfromtxt('1D_PAC/mols.txt', dtype=None, encoding=None)
+veillet_molecs = np.load('1D_PAC/mols_veillet.npy')
 
 def list_archives(strAddress, format=".dat", key='', sort_data=False):
     """
@@ -319,11 +320,14 @@ def extract_molecs(line, mode='array', link='->', return_arrehnius=False):
     Returns:
     Depending on 'mode', either lists of reactants and products, possibly including additional checked characters, or a formatted string representation of the reaction.
     """
-    sep = line.split('=')
-    reacs = sep[0].strip().split('+')
-    reacs = [r.strip() for r in reacs]
-    prods = sep[1][:30].strip().split('+')
-    prods = [p.strip() for p in prods]
+    try:
+        sep = line.split('=')
+        reacs = sep[0].strip().split('+')
+        reacs = [r.strip() for r in reacs]
+        prods = sep[1][:30].strip().split('+')
+        prods = [p.strip() for p in prods]
+    except Exception as e:
+        print (line)
     
     if mode == 'array' and not return_arrehnius:
         return reacs, prods
@@ -356,7 +360,8 @@ def extract_molecs(line, mode='array', link='->', return_arrehnius=False):
             else:
                 to_return+=' + '+pr
         return to_return
-    
+
+"""
 def network_to_df(fname='1D_PAC/venot2020reduced.reac', start_i=11, mid_i=257, add_col='id'):
     reacs_vreduc = open(fname, 'r')
     vreduc_lines = reacs_vreduc.readlines()
@@ -389,9 +394,61 @@ def network_to_df(fname='1D_PAC/venot2020reduced.reac', start_i=11, mid_i=257, a
     reacs_df.index = range(len(reacs_df))
     return reacs_df
 
+"""
+
+def network_to_df(reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
+           check_tol = 1e-4, signal_wrong_ids=True, id_col='id', return_df=True,
+           search_id = False, other_reacs_df=[], original_data_df=[]):
+    reacs_dict = {}
+    reacs_file = open(reacs_full_fname, 'r')
+    reacs_lines = reacs_file.readlines()
+    to_dict = ''
+    c = 0
+    df = pd.DataFrame()
+    for i in range(len(reacs_lines)-1): 
+        if reacs_lines[i].split()[0] == '!':
+            continue
+        to_dict += reacs_lines[i]
+        next_line = reacs_lines[i+1]
+        if len(next_line[:4].replace(' ', '')) != 0 or i + 1 == len(reacs_lines):
+            reacs_dict[c] = to_dict
+            to_dict = ''
+            c+=1
+
+        if return_df and to_dict == '':
+            ind = c - 1
+            reacs, prods, rtype, alpha, beta, gamma = extract_molecs(reacs_dict[c - 1], return_arrehnius=True)
+            df.at[ind, 'reacs'], df.at[ind, 'prods'], df.at[ind, 'rtype'] = str(reacs), str(prods), rtype
+            df.at[ind, 'molecs'] = np.append(reacs, prods)
+            df.at[ind, 'alpha'], df.at[ind, 'beta'], df.at[ind, 'gamma'] = alpha, beta, gamma
+            
+            found_id = False
+            if search_id and len(other_reacs_df) > 0:
+                df_candidates = other_reacs_df[(other_reacs_df.reacs==str(reacs)) & (other_reacs_df.prods==str(prods))]
+                if len(df_candidates) > 0:
+                    ind = df_candidates.index[0]
+                    alpha_row = df_candidates.iloc[0]['alpha']
+                    if abs(alpha - float(alpha_row)) < check_tol or force_id:
+                        other_reacs_df.at[ind, id_col] = c
+                        found_id = True
+                    elif signal_wrong_ids:
+                        print ('signaling:', ind, c - 1, alpha_row, alpha)
+
+            if len(original_data_df) > 0:
+                try:
+                    df.at[ind, 'F'], df.at[ind, 'g'] = original_data_df.at[ind, 'F'], original_data_df.at[ind, 'g']
+                except Exception as e:
+                    print ("Couldn't find F and g for", ind)
+            
+    if return_df and search_id:
+        return reacs_dict, df, other_reacs_df
+    elif return_df:
+        return reacs_dict, df
+    else:
+        return reacs_dict
 
 
-
+"""
 def add_id(reacs_in_venot=[], reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
            check_tol = 1e-4, signal_wrong_ids=True, id_col='id', mid_id = 837):
     reacs_from_file = {}
@@ -428,8 +485,34 @@ def add_id(reacs_in_venot=[], reacs_full_fname='1D_PAC/venot2020.reac', force_id
                 elif signal_wrong_ids:
                     print ('signaling:', ind, c - 1, alpha_row, alpha)
     return reacs_in_venot, reacs_from_file
+"""
 
+def add_id(reacs_in_venot=[], reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
+           check_tol = 1e-4, signal_wrong_ids=True, id_col='id', mid_id = 837):
+    reacs_from_file = {}
+    reacs_file = open(reacs_full_fname, 'r')
+    reacs_lines = reacs_file.readlines()
+    to_dict = ''
+    c = 0
+    for i in range(len(reacs_lines)-1): 
+        to_dict += reacs_lines[i]
+        next_line = reacs_lines[i+1]
+        if len(next_line[:4].replace(' ', '')) != 0 or i + 1 == len(reacs_lines):
+            reacs_from_file[c] = to_dict
+            c+=1
+            to_dict = ''
 
+        if len(reacs_in_venot) > 0:
+            reacs, prods, rtype, alpha, beta, gamma = extract_molecs(reacs_from_file[c-1], return_arrehnius=True)
+            venot_candidates = reacs_in_venot[(reacs_in_venot.reacs==str(reacs)) & (reacs_in_venot.prods==str(prods))]
+            if len(venot_candidates) > 0:
+                ind = venot_candidates.index[0]
+                alpha_row = venot_candidates.iloc[0]['alpha']
+                if abs(alpha - float(alpha_row)) < check_tol or force_id:
+                    reacs_in_venot.at[ind, id_col] = c - 1
+                elif signal_wrong_ids:
+                    print ('signaling:', ind, c - 1, alpha_row, alpha)
+    return reacs_in_venot, reacs_from_file
 
 def run_pac(pop_str, silent=False, hide_output=False, out_file=None, out_path=Path(), max_processes=6, command='./'):
 
@@ -777,12 +860,7 @@ def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', '
 
 
 
-specs_file = open('1D_PAC/venot2020.spec', 'r')
-specs_lines = specs_file.readlines()
-specs_from_file = {}
-for i in range(3,len(specs_lines)):
-    sp = specs_lines[i].split(' ')[1]
-    specs_from_file[sp] = specs_lines[i]
+
 
 
 
@@ -796,7 +874,7 @@ def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
         if id_ == 958:
             continue
         else:
-            row_venot = data_from_venot.iloc[id_]
+            row_venot = data_from_venot.iloc[int(id_)]
 
 
         if str(row['reacs']) == str(row_venot['reacs']):
@@ -845,16 +923,9 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
 
             F = float(reacs_in_lira.at[ind, 'F'])
             g = float(reacs_in_lira.at[ind, 'g'])
-            F_inf = float(reacs_in_lira.at[ind, 'F_inf'])
-            g_inf = float(reacs_in_lira.at[ind, 'g_inf'])
             sigma = unc_factor(t, F0=F, g0=g)
 
             reacs_in_lira.at[ind, 'unc'+str(ind_abun)] = sigma
-
-            if str(F_inf) != 'nan':
-                sigma_inf = unc_factor(t, F0=F_inf, g0=g_inf)
-                reacs_in_lira.at[ind, 'unc_inf'+str(ind_abun)] = sigma_inf
-
             
 
             if sigma > unc_max:
@@ -869,34 +940,39 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
         reacs_in_lira.at[ind, 'unc_min'] = unc_min
     return reacs_in_lira
 
-data_from_venot = obtain_unc_factors()
-if ((os.path.exists('reacs_in_lira.csv') and os.path.exists('reacs_in_full.csv'))):
-    reacs_in_venot = pd.read_csv('reacs_in_venot.csv')
-    _, reacs_from_file = add_id(reacs_in_venot)
-    reacs_in_lira = pd.read_csv('reacs_in_lira.csv')
-    reacs_in_full = pd.read_csv('reacs_in_full.csv')
-
+if os.path.exists('data_from_venot.csv'):
+    data_from_venot = pd.read_csv('data_from_venot.csv')
 else:
-    reacs_in_venot = network_to_df()
-    reacs_in_venot, reacs_from_file = add_id(reacs_in_venot)
+    data_from_venot = obtain_unc_factors()
+    data_from_venot.to_csv('data_from_venot.csv')
 
-    reacs_in_lira = network_to_df(fname='1D_PAC/lira_val2024.reac', start_i=0, mid_i=247)
-    reacs_in_full = network_to_df(fname='1D_PAC/venot2020.reac', start_i=0, mid_i=837, add_col='')
+data_from_veillet = pd.read_csv('data_from_veillet.csv')
+specs_file = open('1D_PAC/veillet2023.spec', 'r') #open('1D_PAC/venot2020.spec', 'r')
+specs_lines = specs_file.readlines()
+specs_from_file = {}
+for i in range(3,len(specs_lines)):
+    sp = specs_lines[i].split(' ')[1]
+    specs_from_file[sp] = specs_lines[i]
 
-    reacs_in_lira, _ = add_id(reacs_in_lira)
-    reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
-    reacs_in_lira = add_params(reacs_in_lira=reacs_in_lira, abun_df=abun_df)
+reacs_from_veillet, reacs_in_veillet = network_to_df(reacs_full_fname='1D_PAC/veillet2023.reac',
+                            force_id=True, id_col='veillet_id', original_data_df=data_from_veillet,
+                            search_id = False, return_df=True)
 
-    reacs_in_full = add_Fg(reacs_in_full, data_from_venot)
-    reacs_in_full = add_params(reacs_in_lira=reacs_in_full, abun_df=abun_df)
+reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname='1D_PAC/lira_val2024.reac', 
+                return_df=True)
 
-    reacs_in_lira.to_csv('reacs_in_lira.csv', index=False)
-    reacs_in_full.to_csv('reacs_in_full.csv', index=False)
-    reacs_in_venot.to_csv('reacs_in_venot.csv', index=False)
+reacs_from_venot, reacs_in_venot = network_to_df(reacs_full_fname='1D_PAC/venot2020reduced.reac', 
+                                            return_df=True)
+
+reacs_from_file, reacs_in_full, reacs_in_lira = network_to_df(reacs_full_fname='1D_PAC/venot2020.reac', return_df=True,
+                    search_id = True, force_id=True, id_col='id', original_data_df=data_from_venot,
+                    other_reacs_df=reacs_in_lira)
+#reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
+
 
 def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, loss=-1,
                     write_ids=False, imp_mols_flag=True, add_He_reac=False,
-                    reacs_from_file=reacs_from_file):
+                    reacs_dict=reacs_from_file):
     """
     Writes a new scheme into files based on reduced sets of reactions and molecules.
 
@@ -925,7 +1001,7 @@ def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, l
         print ('Writing', len(kid_reduc), 'reacs and', len(reduc_molecs), 'species and MRE=', loss)
     new_reacs_file = open(fname+'.reac', 'w')
     for id_ in np.unique(kid_reduc):
-        new_reacs_file.write(reacs_from_file[id_])
+        new_reacs_file.write(reacs_dict[id_])
     if add_He_reac:
         new_reacs_file.write('He + H2 = He + H2                                  0.00E+00     0.00        0    3 :                        : artificially added to involve He')
     new_reacs_file.close()

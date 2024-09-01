@@ -11,7 +11,7 @@ class Scheme:
     def __init__(self, ids, molecs, master_df, parent_key='', scheme_id=0, out_path='1D_PAC/gen/', pop_str='pop0', 
                  planets=['hd2094', 'hd1897'], parent_loss=1e5, len_reacs=958, max_mols=107,
                  len_ids_pool=-1, schemes_path='saved_schemes/', search_first=True, change_fname_key=True,
-                 curiosity=0):
+                 curiosity=0, reacs_dict=reacs_from_file):
         """
         Initializes a Scheme object with given identifiers, molecules, and configuration parameters.
 
@@ -35,6 +35,7 @@ class Scheme:
         self._scheme_id, self._pop_str, self._out_path, self._planets = scheme_id, pop_str, out_path, planets
         self._len_ids_pool, self._schemes_path, self._search_first = len_ids_pool, schemes_path, search_first
         self._parent_key, self.parent_loss, self._curiosity, self._len_reacs =parent_key, parent_loss, curiosity, len_reacs
+        self._reacs_dict = reacs_dict
 
         
         if search_first:
@@ -190,7 +191,7 @@ class Scheme:
         if init_str=='':
             init_str=self._pop_str
 
-        
+        reacs_dict = self._reacs_dict
         if check_dir:
             (out_path / Path(init_str)).mkdir(parents=True, exist_ok=True)
 
@@ -216,9 +217,10 @@ class Scheme:
             
             if not self.loss == None:
                 write_new_scheme(self.ids, self.molecs, fname=str(out_path)+'/'+fname, write_ids=write_ids, loss=self.losses[id_planet],
-                                imp_mols_flag=imp_mols_flag)
+                                imp_mols_flag=imp_mols_flag, reacs_dict=reacs_dict)
             else:
-                write_new_scheme(self.ids, self.molecs, fname=str(out_path)+'/'+fname, write_ids=write_ids)
+                write_new_scheme(self.ids, self.molecs, fname=str(out_path)+'/'+fname, write_ids=write_ids,
+                                imp_mols_flag=imp_mols_flag, reacs_dict=reacs_dict)
 
 
                 
