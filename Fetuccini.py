@@ -117,7 +117,7 @@ if __name__ == "__main__":
                                    return_only_mols=False)
     reacs_in_veillet = add_params(reacs_in_veillet, vdf, add_krate=False)
     Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=2500, run_rn=True, max_processes=36,
-              pop_str='vreacs')
+              pop_str='vreacs', out_path = '1D_PAC/fetuccini_veillet')
 
 
     
