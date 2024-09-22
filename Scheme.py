@@ -340,6 +340,10 @@ class Scheme:
             elif weight_by=='molecs&logmajor':
                 rel_weighted = weight_factor[1]*np.log10(merge_fn(self._major_loss))
                 to_add = weight_factor[0] * len(self.molecs) + rel_weighted
+            elif weight_by=='molecs&logall':
+                all_weighted = weight_factor[2]*np.log10(merge_fn(self._rel_all))  
+                rel_weighted = weight_factor[1]*np.log10(merge_fn(self._major_loss))
+                to_add = weight_factor[0] * len(self.molecs) + rel_weighted + all_weighted
             self.loss=merge_fn(self.losses)+to_add-curiosity
         if len(insert_dirs)==0:
             return self.loss
