@@ -6,9 +6,11 @@ import shutil
 from pathlib import Path
 from sklearn.metrics import r2_score, mean_absolute_percentage_error
 
+file_path = os.path.dirname(os.path.realpath(__file__))
+print (file_path)
 imp_molecs = ['H2O', 'CH4', 'CO', 'CO2', 'NH3', 'HCN', 'C2H2', 'OH']
-all_molecs = np.genfromtxt('1D_PAC/mols.txt', dtype=None, encoding=None)
-veillet_molecs = np.load('1D_PAC/mols_veillet.npy')
+all_molecs = np.genfromtxt(os.path.join(file_path,'1D_PAC/mols.txt'), dtype=None, encoding=None)
+veillet_molecs = np.load(os.path.join(file_path, '1D_PAC/mols_veillet.npy'))
 
 def list_archives(strAddress, format=".dat", key='', sort_data=False):
     """
@@ -765,7 +767,7 @@ def calculate_rate(reacs_in_lira, abun_df, ind, ind_height):
     return float(nu)
 
 prefix = '/Users/arturolira/phd_no_icloud/DARWEN/VENOT2020/reactions_'
-prefix = '1D_PAC/VENOT2020/reactions_'
+prefix = os.path.join(file_path, '1D_PAC/VENOT2020/reactions_')
 
 def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', 'CH4', 'H2', 'C2H6', 
                                                      'Ar', 'N2', 'He', 'C2H4', 'benzene', 'toluene', 
@@ -896,7 +898,8 @@ def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
 
 
 
-abun_df, cons_err, _ = out_to_dfs('1D_PAC/hd2094_optval_0905', error_purposes=True, return_only_mols=False)
+abun_df, cons_err, _ = out_to_dfs(os.path.join(file_path,'1D_PAC/hd2094_optval_0905'), 
+                    error_purposes=True, return_only_mols=False)
 abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
 
 def unc_factor(t, F0, g0, T0=300):
@@ -940,39 +943,48 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
         reacs_in_lira.at[ind, 'unc_min'] = unc_min
     return reacs_in_lira
 
-if os.path.exists('data_from_venot.csv'):
-    data_from_venot = pd.read_csv('data_from_venot.csv')
+"""
+if os.path.exists(os.path.join(file_path, 'data_from_venot.csv')):
+    data_from_venot = pd.read_csv(os.path.join(file_path, 'data_from_venot.csv'))
 else:
     data_from_venot = obtain_unc_factors()
-    data_from_venot.to_csv('data_from_venot.csv')
+    data_from_venot.to_csv(os.path.join(file_path, 'data_from_venot.csv'))
+"""
 
-data_from_veillet = pd.read_csv('data_from_veillet.csv')
-specs_file = open('1D_PAC/veillet2023.spec', 'r') #open('1D_PAC/venot2020.spec', 'r')
+data_from_veillet = pd.read_csv(os.path.join(file_path, '1D_PAC/data_from_veillet.csv'))
+specs_file = open(os.path.join(file_path, '1D_PAC/veillet2023.spec'), 'r') #open('1D_PAC/venot2020.spec', 'r')
 specs_lines = specs_file.readlines()
 specs_from_file = {}
 for i in range(3,len(specs_lines)):
     sp = specs_lines[i].split(' ')[1]
     specs_from_file[sp] = specs_lines[i]
 
-reacs_from_veillet, reacs_in_veillet = network_to_df(reacs_full_fname='1D_PAC/veillet2023.reac',
+reacs_from_veillet, reacs_in_veillet = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/veillet2023.reac'),
                             force_id=True, id_col='veillet_id', original_data_df=data_from_veillet,
                             search_id = False, return_df=True)
 
-reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname='1D_PAC/lira_val2024.reac', 
+
+reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/lira_val2024.reac'), 
                 return_df=True)
 
-reacs_from_venot, reacs_in_venot = network_to_df(reacs_full_fname='1D_PAC/venot2020reduced.reac', 
+"""
+reacs_from_venot, reacs_in_venot = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020reduced.reac'), 
                                             return_df=True)
 
-reacs_from_file, reacs_in_full, reacs_in_lira = network_to_df(reacs_full_fname='1D_PAC/venot2020.reac', return_df=True,
+
+reacs_from_file, reacs_in_full, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020.reac'), return_df=True,
                     search_id = True, force_id=True, id_col='id', original_data_df=data_from_venot,
                     other_reacs_df=reacs_in_lira)
-#reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
+
+reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
+"""
+
+
 
 
 def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, loss=-1,
                     write_ids=False, imp_mols_flag=True, add_He_reac=False,
-                    reacs_dict=reacs_from_file):
+                    reacs_dict={}):
     """
     Writes a new scheme into files based on reduced sets of reactions and molecules.
 
