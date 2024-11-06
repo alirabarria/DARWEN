@@ -7,10 +7,8 @@ from pathlib import Path
 from sklearn.metrics import r2_score, mean_absolute_percentage_error
 
 file_path = os.path.dirname(os.path.realpath(__file__))
-print (file_path)
-imp_molecs = ['H2O', 'CH4', 'CO', 'CO2', 'NH3', 'HCN', 'C2H2', 'OH']
-all_molecs = np.genfromtxt(os.path.join(file_path,'1D_PAC/mols.txt'), dtype=None, encoding=None)
-veillet_molecs = np.load(os.path.join(file_path, '1D_PAC/mols_veillet.npy'))
+
+  
 
 def list_archives(strAddress, format=".dat", key='', sort_data=False):
     """
@@ -309,7 +307,7 @@ def move_files_with_string(folder_path, target_folder, string_to_match, delete_p
     elif verbose:
         print('No files found with the specified string.')
 
-def extract_molecs(line, mode='array', link='->', return_arrehnius=False):
+def extract_molecs(line, mode='array', link='->', return_arrehnius=False, int_max=28):
     """
     Extracts molecules from a reaction line, supporting different output formats.
 
@@ -326,7 +324,7 @@ def extract_molecs(line, mode='array', link='->', return_arrehnius=False):
         sep = line.split('=')
         reacs = sep[0].strip().split('+')
         reacs = [r.strip() for r in reacs]
-        prods = sep[1][:30].strip().split('+')
+        prods = sep[1][:int_max].strip().split('+')
         prods = [p.strip() for p in prods]
     except Exception as e:
         print (line)
@@ -756,8 +754,8 @@ def get_k(reacs_df, ind, t, p, abuns={}):
 
     return float(k_rate), unc_type
 
-def calculate_rate(reacs_in_lira, abun_df, ind, ind_height):
-    row = reacs_in_lira.iloc[ind]
+def calculate_rate(reacs_df, abun_df, ind, ind_height):
+    row = reacs_df.iloc[ind]
     reacs = row['reacs']
     krate = row['krate'+str(ind_height)]
     nu = Decimal(krate)
@@ -766,10 +764,9 @@ def calculate_rate(reacs_in_lira, abun_df, ind, ind_height):
         nu *= Decimal(10**abun)
     return float(nu)
 
-prefix = '/Users/arturolira/phd_no_icloud/DARWEN/VENOT2020/reactions_'
-prefix = os.path.join(file_path, '1D_PAC/VENOT2020/reactions_')
 
-def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', 'CH4', 'H2', 'C2H6', 
+
+def obtain_unc_factors(prefix = '', feff_keys = ['O2', 'CO', 'CO2', 'H2O', 'CH4', 'H2', 'C2H6', 
                                                      'Ar', 'N2', 'He', 'C2H4', 'benzene', 'toluene', 
                                                      'H2O2', 'N2O', 'O3P', 'NH3', 'N2H4', 'N2O4', 
                                                      'NO2', 'NO', 'N4S'],
@@ -866,8 +863,8 @@ def obtain_unc_factors(prefix = prefix, feff_keys = ['O2', 'CO', 'CO2', 'H2O', '
 
 
 
-def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
-    for ind, row in reacs_in_lira.iterrows():
+def add_Fg(reacs_df, data_from_venot, use_whole_net=True):
+    for ind, row in reacs_df.iterrows():
         if use_whole_net:
             id_ = ind
         else:
@@ -888,25 +885,24 @@ def add_Fg(reacs_in_lira, data_from_venot, use_whole_net=True):
                         ) and row['prods']==eval(row_venot['prods']):
                     F, g, F_inf, g_inf = row_venot['F'
                                 ], row_venot['g'], row_venot['F_inf'], row_venot['g_inf']
+                else:
+                    print ('problem with', ind, row['reacs'], row['prods'] )
 
-        reacs_in_lira.at[ind, 'F'] = F
-        reacs_in_lira.at[ind, 'g'] = g
-        reacs_in_lira.at[ind, 'F_inf'] = F_inf
-        reacs_in_lira.at[ind, 'g_inf'] = g_inf
-    return reacs_in_lira
+        reacs_df.at[ind, 'F'] = F
+        reacs_df.at[ind, 'g'] = g
+        reacs_df.at[ind, 'F_inf'] = F_inf
+        reacs_df.at[ind, 'g_inf'] = g_inf
+    return reacs_df
 
 
 
 
-abun_df, cons_err, _ = out_to_dfs(os.path.join(file_path,'1D_PAC/hd2094_optval_0905'), 
-                    error_purposes=True, return_only_mols=False)
-abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
 
 def unc_factor(t, F0, g0, T0=300):
     return F0*np.exp(g0*np.abs(1/t - 1/T0))
 
-def add_params(reacs_in_lira, abun_df, add_krate=False):
-    for ind in reacs_in_lira.index:
+def add_params(reacs_df, abun_df, add_krate=False):
+    for ind in reacs_df.index:
         nu_max = 0
         unc_max = 0
         unc_min = 10
@@ -915,20 +911,20 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
             p = row_abun['pressure[bar]']
             abuns = row_abun
             if add_krate:
-                krate, unc_type = get_k(reacs_in_lira, ind, t, p, 
+                krate, unc_type = get_k(reacs_df, ind, t, p, 
                                     abuns=abuns)
-                reacs_in_lira.at[ind, 'krate'+str(ind_abun)] = krate
-                nu = calculate_rate(reacs_in_lira, abun_df, ind, ind_abun)
-                reacs_in_lira.at[ind, 'nu'+str(ind_abun)] = nu
+                reacs_df.at[ind, 'krate'+str(ind_abun)] = krate
+                nu = calculate_rate(reacs_df, abun_df, ind, ind_abun)
+                reacs_df.at[ind, 'nu'+str(ind_abun)] = nu
                 if nu > nu_max:
                     nu_max = nu
                 
 
-            F = float(reacs_in_lira.at[ind, 'F'])
-            g = float(reacs_in_lira.at[ind, 'g'])
+            F = float(reacs_df.at[ind, 'F'])
+            g = float(reacs_df.at[ind, 'g'])
             sigma = unc_factor(t, F0=F, g0=g)
 
-            reacs_in_lira.at[ind, 'unc'+str(ind_abun)] = sigma
+            reacs_df.at[ind, 'unc'+str(ind_abun)] = sigma
             
 
             if sigma > unc_max:
@@ -937,54 +933,78 @@ def add_params(reacs_in_lira, abun_df, add_krate=False):
             if sigma < unc_min:
                 unc_min = sigma
         if add_krate:
-            reacs_in_lira.at[ind,  'unc_type'] = unc_type
-            reacs_in_lira.at[ind, 'nu_max'] = nu_max
-        reacs_in_lira.at[ind, 'unc_max'] = unc_max
-        reacs_in_lira.at[ind, 'unc_min'] = unc_min
-    return reacs_in_lira
+            reacs_df.at[ind,  'unc_type'] = unc_type
+            reacs_df.at[ind, 'nu_max'] = nu_max
+        reacs_df.at[ind, 'unc_max'] = unc_max
+        reacs_df.at[ind, 'unc_min'] = unc_min
+    return reacs_df
 
-"""
-if os.path.exists(os.path.join(file_path, 'data_from_venot.csv')):
-    data_from_venot = pd.read_csv(os.path.join(file_path, 'data_from_venot.csv'))
-else:
-    data_from_venot = obtain_unc_factors()
-    data_from_venot.to_csv(os.path.join(file_path, 'data_from_venot.csv'))
-"""
 
-data_from_veillet = pd.read_csv(os.path.join(file_path, '1D_PAC/data_from_veillet.csv'))
-specs_file = open(os.path.join(file_path, '1D_PAC/veillet2023.spec'), 'r') #open('1D_PAC/venot2020.spec', 'r')
-specs_lines = specs_file.readlines()
-specs_from_file = {}
-for i in range(3,len(specs_lines)):
-    sp = specs_lines[i].split(' ')[1]
-    specs_from_file[sp] = specs_lines[i]
 
-reacs_from_veillet, reacs_in_veillet = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/veillet2023.reac'),
+
+def initialize(network='veillet', fetuccini_mode=False):
+    
+    global imp_molecs, abund_df, all_molecs, prefix, reacs_from_lira, reacs_in_lira, specs_from_file, specs_lines
+    imp_molecs = ['H2O', 'CH4', 'CO', 'CO2', 'NH3', 'HCN', 'C2H2', 'OH']
+    reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/lira_val2024.reac'), 
+                return_df=True)
+    
+    if network == 'veillet':
+        
+        global data_from_veillet, reacs_from_veillet, reacs_in_veillet
+        print ('initializing veillet vars')
+        all_molecs = np.load(os.path.join(file_path, '1D_PAC/mols_veillet.npy'))
+        specs_file = open(os.path.join(file_path, '1D_PAC/veillet2023.spec'), 'r')
+        data_from_veillet = pd.read_csv(os.path.join(file_path, '1D_PAC/data_from_veillet.csv'))
+        reacs_from_veillet, reacs_in_veillet = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/veillet2023.reac'),
                             force_id=True, id_col='veillet_id', original_data_df=data_from_veillet,
                             search_id = False, return_df=True)
+                            
+        prefix = os.path.join(file_path, '1D_PAC/VENOT2020/reactions_')
 
+        if fetuccini_mode:
+            vdf, cons_err, _ = out_to_dfs('1D_PAC/hd2094_veillet', error_purposes=True, file_key='_out', 
+                                   return_only_mols=False)
+            reacs_in_veillet = add_params(reacs_in_veillet, vdf, add_krate=False)
+        
+    else:
+        global data_from_venot, reacs_from_venot, reacs_from_file, reacs_in_venot, reacs_in_full
+        print ('initializing venot vars')
+        prefix = '/Users/arturolira/phd_no_icloud/DARWEN/VENOT2020/reactions_'
+        
 
-reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/lira_val2024.reac'), 
-                return_df=True)
-
-"""
-reacs_from_venot, reacs_in_venot = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020reduced.reac'), 
+        if os.path.exists(os.path.join(file_path, 'data_from_venot.csv')):
+            data_from_venot = pd.read_csv(os.path.join(file_path, 'data_from_venot.csv'))
+        else:
+            data_from_venot = obtain_unc_factors(prefix = prefix)
+            data_from_venot.to_csv(os.path.join(file_path, 'data_from_venot.csv'))
+        all_molecs = np.genfromtxt(os.path.join(file_path,'1D_PAC/mols.txt'), dtype=None, encoding=None)
+        specs_file = open(os.path.join(file_path, '1D_PAC/venot2020.spec'), 'r')
+        reacs_from_venot, reacs_in_venot = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020reduced.reac'), 
                                             return_df=True)
-
-
-reacs_from_file, reacs_in_full, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020.reac'), return_df=True,
+        reacs_from_file, reacs_in_full, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020.reac'), return_df=True,
                     search_id = True, force_id=True, id_col='id', original_data_df=data_from_venot,
                     other_reacs_df=reacs_in_lira)
+        if fetuccini_mode:
+            abun_df, cons_err, _ = out_to_dfs(os.path.join(file_path,'1D_PAC/hd2094_optval_0905'), 
+                    error_purposes=True, return_only_mols=False)
+            abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
+            reacs_in_full = add_params(reacs_in_full, abun_df, add_krate=False)
 
-reacs_in_lira = add_Fg(reacs_in_lira, data_from_venot, use_whole_net=False)
-"""
+    specs_lines = specs_file.readlines()
+    specs_from_file = {}
+    for i in range(3,len(specs_lines)):
+        sp = specs_lines[i].split(' ')[1]
+        specs_from_file[sp] = specs_lines[i]
 
+    specs_file.close()
 
+   
 
 
 def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, loss=-1,
                     write_ids=False, imp_mols_flag=True, add_He_reac=False,
-                    reacs_dict={}):
+                    reacs_dict={}, specs_lines=[], specs_from_file={}):
     """
     Writes a new scheme into files based on reduced sets of reactions and molecules.
 
@@ -1017,23 +1037,28 @@ def write_new_scheme(kid_reduc, reduc_molecs, fname='lira2023', verbose=False, l
     if add_He_reac:
         new_reacs_file.write('He + H2 = He + H2                                  0.00E+00     0.00        0    3 :                        : artificially added to involve He')
     new_reacs_file.close()
-    new_specs_file = open(fname+'.spec', 'w')
-    if loss != -1:
-        if imp_mols_flag:
-            new_specs_file.write('! imp_loss: '+str(loss)+'\n')
-        else:
-            new_specs_file.write('! loss: '+str(loss)+'\n')
-        for i in range(1,3):
-            new_specs_file.write(specs_lines[i])
-    else:
-        for i in range(0,3):
-            new_specs_file.write(specs_lines[i])
+    if len(specs_lines) > 0:
+        new_specs_file = open(fname+'.spec', 'w')
 
-    for m in np.unique(reduc_molecs):
-        new_specs_file.write(specs_from_file[m])
-    if not 'He' in np.unique(reduc_molecs):
-        new_specs_file.write(' He           0.000E+00  -99999.000    -999.000   0.000000  0.000000    0     1     1    He  1')
-    new_specs_file.close()
+        try:
+            if loss != -1 and imp_mols_flag:
+                new_specs_file.write('! imp_loss: '+str(loss)+'\n')
+                for i in range(1,3):
+                    new_specs_file.write(specs_lines[i])
+            else:
+                for i in range(0,3):
+                    new_specs_file.write(specs_lines[i])
+            for m in np.unique(reduc_molecs):
+                new_specs_file.write(specs_from_file[m])
+
+            if not 'He' in np.unique(reduc_molecs):
+                new_specs_file.write(' He           0.000E+00  -99999.000    -999.000   0.000000  0.000000    0     1     1    He  1')
+        except Exception as e:
+            print (e)
+            print ('Error writing specs file:', specs_lines)
+
+        
+        new_specs_file.close()
 
 
 

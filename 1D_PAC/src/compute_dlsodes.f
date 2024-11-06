@@ -194,7 +194,7 @@ c      ...get next tout "tout=tout*tstep"
           if (max_nout.gt.0.and.nout.gt.max_nout)then
              steady=.true.
           endif
-          if (errflag.eq.1)then
+          if (istate.eq.-1)then ! Cut the loop if it starts looping
              steady=.true.
           endif
           if(t_total.lt.tmin)tout=o_tout*ftstep        ! if t < tmin

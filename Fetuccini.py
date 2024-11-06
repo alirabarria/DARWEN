@@ -108,11 +108,7 @@ class Fetuccini:
 
 if __name__ == "__main__":
 
-    vdf, cons_err, _ = out_to_dfs('1D_PAC/hd2094_veillet', error_purposes=True, file_key='_out', 
-                                   return_only_mols=False)
-    reacs_in_veillet = add_params(reacs_in_veillet, vdf, add_krate=False)
-    Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=1000, run_rn=True, max_processes=36,
-              pop_str='vreacs', out_path = '1D_PAC/fetuccini_veillet', inp_file='1D_PAC/veillet_run.inp',)
-
-
+    initialize(network='venot', fetuccini_mode=True)
+    Fetuccini(reacs_in_full, reacs_from_file, n_samples=1000, run_rn=True, max_processes=36,
+              pop_str='venot', out_path = '1D_PAC/fetuccini', inp_file='1D_PAC/hd2094_varied.inp',)
     

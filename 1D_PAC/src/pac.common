@@ -33,7 +33,7 @@ c
        real*8 tiny,huge,abunmin,ftstep,cn_theta,kratemax1,kratemax2,
      # kratemax3
 
-       parameter(nspecxfile=120)     ! number of species per output file
+       parameter(nspecxfile=200)     ! number of species per output file
        parameter(tiny=1.0d-100)      ! tiny number
        parameter(huge=1.0d+100)      ! huge number
        parameter(abunmin=1.0d-99)    ! minimum molar fraction to write out

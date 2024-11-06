@@ -1765,7 +1765,8 @@ C The maximum number of steps was taken before reaching TOUT. ----------
       MSG = '      taken on this call before reaching TOUT     '
       CALL XERRWD (MSG, 50, 201, 0, 1, MXSTEP, 0, 1, TN, 0.0D0)
       ISTATE = -1
-      GO TO 580
+c      GO TO 580
+      STOP ! @Arturo did this so the algorithm doesn't loop infinitely 
 C EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
  510  EWTI = RWORK(LEWT+I-1)
       MSG = 'DLSODES- At T (=R1), EWT(I1) has become R2 .le. 0.'
