@@ -23,7 +23,7 @@ COMMON  = pac.common \
            dimension.common
 
 # Add -fallow-argument-mismatch only for dlsodes.o
-dlsodes.o: FFLAGS += -fallow-argument-mismatch
+# dlsodes.o: FFLAGS += -fallow-argument-mismatch
 
 all: $(EXEC)
 	echo "             Done!"
