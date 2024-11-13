@@ -107,9 +107,9 @@ class Fetuccini:
 
 
 if __name__ == "__main__":
-
+    strtime =datetime.now().strftime("pop%H%M-")
     initialize(network='veillet', fetuccini_mode=True)
     from darwen_functions import reacs_in_veillet, reacs_from_veillet
     Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=300, run_rn=True, max_processes=36,
-              pop_str='photoveill', out_path = '1D_PAC/fetuccini_veillet', inp_file='1D_PAC/veillet_photo_vary.inp',)
+              pop_str='photorange-'+strtime, out_path = '1D_PAC/fetuccini_veillet', inp_file='1D_PAC/veillet_photo_vary.inp',)
     
