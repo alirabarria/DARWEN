@@ -107,7 +107,7 @@ class Fetuccini:
 
 
 if __name__ == "__main__":
-    strtime =datetime.now().strftime("fetuccini-%Y%m%d%H%M_")
+    strtime =datetime.now().strftime("var-%Y:%m:%d:%H:%M-")
     initialize(network='veillet', fetuccini_mode=True)
     from darwen_functions import reacs_in_veillet, reacs_from_veillet
     Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=300, run_rn=True, max_processes=36,
