@@ -108,8 +108,8 @@ class Fetuccini:
 
 if __name__ == "__main__":
 
-    initialize(network='venot', fetuccini_mode=True)
-    from darwen_functions import reacs_in_full, reacs_from_file
-    Fetuccini(reacs_in_full, reacs_from_file, n_samples=1000, run_rn=True, max_processes=36,
-              pop_str='venot', out_path = '1D_PAC/fetuccini', inp_file='1D_PAC/hd2094_varied.inp',)
+    initialize(network='veillet', fetuccini_mode=True)
+    from darwen_functions import reacs_in_veillet, reacs_from_veillet
+    Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=300, run_rn=True, max_processes=36,
+              pop_str='photoveill', out_path = '1D_PAC/fetuccini_veillet', inp_file='1D_PAC/veillet_photo_vary.inp',)
     
