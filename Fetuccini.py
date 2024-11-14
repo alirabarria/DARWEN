@@ -1,5 +1,6 @@
 from Scheme import *
 from multiprocessing import cpu_count
+from time import time_ns
 
 class Fetuccini:
     def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=1.,
@@ -37,7 +38,7 @@ class Fetuccini:
         if mode == 'lognormal':
             mu = 0
             # Seed the random number generator with the current time in nanoseconds
-            seed = int(time.time_ns())
+            seed = int(time_ns())
             rng = np.random.default_rng(seed)
             samples = rng.normal(mu, self._width, int(10 * len(reacs_in_full)))
             filtered_gauss = samples[(samples >= mu - self.max_width) & (
@@ -113,6 +114,7 @@ class Fetuccini:
 if __name__ == "__main__":
     num_cores = cpu_count()
     n_samples = int(10*num_cores)
+    n_samples = 3
     strtime = datetime.now().strftime("var-%Y:%m:%d:%H:%M-")
     initialize(network='veillet', fetuccini_mode=True)
     from darwen_functions import reacs_in_veillet, reacs_from_veillet
