@@ -36,10 +36,13 @@ class Fetuccini:
         width = self._width
         if mode == 'lognormal':
             mu = 0
-            samples = np.random.normal(mu, self._width, int(10*len(reacs_in_full)))
+            # Seed the random number generator with the current time in nanoseconds
+            seed = int(time.time_ns())
+            rng = np.random.default_rng(seed)
+            samples = rng.normal(mu, self._width, int(10 * len(reacs_in_full)))
             filtered_gauss = samples[(samples >= mu - self.max_width) & (
                                         samples <= mu + self.max_width)]
-            filtered_gauss = np.random.permutation(filtered_gauss)[:len(reacs_in_full)]
+            filtered_gauss = rng.permutation(filtered_gauss)[:len(reacs_in_full)]
 
         new_reacs_df = reacs_in_full.copy()
         new_reacs_dict = {} 
