@@ -1,4 +1,5 @@
 from Scheme import *
+from multiprocessing import cpu_count
 
 class Fetuccini:
     def __init__(self, reacs_in_full, reacs_from_file, inp_file='1D_PAC/hd2094_varied.inp', width=1.,
@@ -107,9 +108,10 @@ class Fetuccini:
 
 
 if __name__ == "__main__":
+    num_cores = cpu_count()
     strtime = datetime.now().strftime("var-%Y:%m:%d:%H:%M-")
     initialize(network='veillet', fetuccini_mode=True)
     from darwen_functions import reacs_in_veillet, reacs_from_veillet
-    Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=300, run_rn=True, max_processes=36,
+    Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=300, run_rn=True, max_processes=num_cores,
               pop_str=strtime, out_path = '1D_PAC/fetuccini_veillet', inp_file='1D_PAC/veillet_photo_vary.inp',)
     
