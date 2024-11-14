@@ -109,9 +109,10 @@ class Fetuccini:
 
 if __name__ == "__main__":
     num_cores = cpu_count()
+    n_samples = int(10*num_cores)
     strtime = datetime.now().strftime("var-%Y:%m:%d:%H:%M-")
     initialize(network='veillet', fetuccini_mode=True)
     from darwen_functions import reacs_in_veillet, reacs_from_veillet
-    Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=300, run_rn=True, max_processes=num_cores,
+    Fetuccini(reacs_in_veillet, reacs_from_veillet, n_samples=n_samples, run_rn=True, max_processes=num_cores,
               pop_str=strtime, out_path = '1D_PAC/fetuccini_veillet', inp_file='1D_PAC/veillet_photo_vary.inp',)
     
