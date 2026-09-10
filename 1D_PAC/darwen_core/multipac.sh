@@ -1,7 +1,7 @@
 #!/bin/bash
 # multipac.sh
-max_processes=6
 input_dir=$1
+max_processes=$2
 count=0
 
 for dir in $(ls $input_dir)

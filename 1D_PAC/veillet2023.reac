@@ -1,6 +1,6 @@
  H + O2 = OOH                                       4.30E-32    -1.23        0 -800 :                    D   : k_0 
                                                     9.50E-11     0.44        0                               : k_infinite
-                       0.670   0.00  1.000E+30  1.000E+30  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.670    1.00E-30  1.000E+30  1.000E+30  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.900 
                                       CO2        3.800 
                                       H2O        10.000 
@@ -42,10 +42,10 @@
                                       He         0.700 
  CH3 + O2 = CH3OO                                   7.00E-31    -3.00        0 -800 :                    D   : k_0 
                                                     2.20E-12     0.90        0                               : k_infinite
-                   0.600  1.000E+03  7.000E+01  1.700E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.600  1000.00  7.000E+01  1.700E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  HCO + H = H2CO                                     1.60E-30    -2.57      716 -800 :                    D   : k_0 
                                                     2.80E-11     0.48     -131                               : k_infinite
-                       0.782 271.00  2.755E+03  6.570E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.782  271.00  2.755E+03  6.570E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -56,7 +56,7 @@
                                       He         0.700 
  CO + H2 = H2CO                                     4.72E-29    -3.42    42410 -800 :                    D   : k_0 
                                                     3.71E-13     1.50    40020                               : k_infinite
-                       0.932 197.00  1.540E+03  1.030E+04  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.932  197.00  1.540E+03  1.030E+04  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -67,7 +67,7 @@
                                       He         0.700 
  H2CO + H = CH2OH                                   4.03E-28    -4.82     3283 -800 :                    D   : k_0 
                                                     1.19E-11     0.45     1810                               : k_infinite
-                       0.719 103.00  1.291E+03  4.160E+03  6                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.719  103.00  1.291E+03  4.160E+03  6                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -76,13 +76,13 @@
                                       C2H6       3.000 
  CH3 + CH3 = C2H6                                   1.14E-25    -3.75      494 -800 :                    D   : k_0 
                                                     7.39E-11    -0.69       88                               : k_infinite
-                       0.000 570.00  1.000E+30  1.000E+30  3                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.000  570.00  1.000E+30  1.000E+30  3                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         2.000 
                                       CO2        3.000 
                                       H2O        5.000 
  C2H5 + H = C2H6                                    1.59E-24    -7.08     3361 -800 :                    D   : k_0 
                                                     3.05E-09    -0.99      794                               : k_infinite
-                       0.842 125.00  2.219E+03  6.882E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.842  125.00  2.219E+03  6.882E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -93,7 +93,7 @@
                                       He         0.700 
  C2H4 + H = C2H5                                    1.38E-25    -6.64     2900 -800 :                    D   : k_0 
                                                     6.69E-12     1.46      681                               : k_infinite
-                      -0.569 299.00 -9.147E+03  1.524E+02  7                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                      -0.569  299.00 -9.147E+03  1.524E+02  7                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -103,7 +103,7 @@
                                       Ar         0.700 
  C2H3 + H = C2H4                                    1.06E-27    -3.86     1669 -800 :                    D   : k_0 
                                                     4.71E-11     0.27      141                               : k_infinite
-                       0.782 207.50  2.663E+03  6.095E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.782  207.50  2.663E+03  6.095E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -114,7 +114,7 @@
                                       He         0.700 
  C2H2 + H = C2H3                                    4.90E-28    -4.66     1900 -800 :                    D   : k_0 
                                                     3.89E-11     1.27     1362                               : k_infinite
-                   0.788 -1.020E+04  1.000E-30  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.788  -10200.00  1.000E-30  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -125,7 +125,7 @@
                                       He         0.700 
  C2H + H = C2H2                                     1.33E-26    -4.80      955 -800 :                    D   : k_0 
                                                     1.66E-07     0.00        0                               : k_infinite
-                       0.646 132.00  1.315E+03  5.566E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.646  132.00  1.315E+03  5.566E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -136,7 +136,7 @@
                                       He         0.700 
  3CH2 + CO = CH2CO                                  1.63E-27    -5.11     3567 -800 :                    D   : k_0 
                                                     1.35E-12     0.00        0                               : k_infinite
-                       0.591 275.00  1.226E+03  5.185E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.591  275.00  1.226E+03  5.185E+03  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -147,73 +147,73 @@
                                       He         0.700 
  C2H3 + CH3 = C3H6                                  3.12E-19   -11.94     4912 -800 :                    D   : k_0 
                                                     4.15E-11     0.00        0                               : k_infinite
-                   0.175  1.341E+03  6.000E+04  1.014E+04  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.175  1341.00  6.000E+04  1.014E+04  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  NH2 + H = NH3                                      4.34E-30    -1.76        0 -800 :                    D   : k_0 
                                                     2.66E-10     0.00        0                               : k_infinite
-                       0.500   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.500    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  NO + H = HNO                                       2.14E-33     0.21     -779 -800 :                    D   : k_0 
                                                     2.40E-10    -0.41        0                               : k_infinite
-                       0.820   0.00  1.000E+30  1.000E+30  1                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.820    1.00E-30  1.000E+30  1.000E+30  1                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       N2         1.600 
  NO + O3P = NO2                                     1.01E-30    -2.87      779 -800 :                    D   : k_0 
                                                     3.00E-11    -0.75        0                               : k_infinite
-                   0.750  1.000E+03  1.000E+05  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.750  1000.00  1.000E+05  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  NO + OH = HONO                                     6.00E-31    -2.50        0 -800 :                    D   : k_0 
                                                     3.30E-11    -0.30        0                               : k_infinite
-                       0.750   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.750    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  NO2 + O3P = NO3                                    1.33E-31    -1.50        0 -800 :                    D   : k_0 
                                                     2.29E-11     0.24        0                               : k_infinite
-                       0.710   0.00  1.700E+03  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.710    1.00E-30  1.700E+03  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  NO2 + OH = HNO3                                    3.00E-30    -3.00        0 -800 :                    D   : k_0 
                                                     4.98E-11     0.00        0                               : k_infinite
-                       0.400   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.400    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  NH2 + NH2 = N2H4                                   1.11E-27    -5.49      999 -800 :                    D   : k_0 
                                                     8.77E-11    -0.41       33                               : k_infinite
-                       0.310   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.310    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3 + NO = CH3NO                                   6.90E-32     0.00    -1428 -800 :                    D   : k_0 
                                                     1.50E-11     0.00       97                               : k_infinite
-                       5.000   0.00  1.200E+02  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       5.000    1.00E-30  1.200E+02  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3O + NO = CH3NO2                                 2.60E-29    -2.80        0 -800 :                    D   : k_0 
                                                     3.25E-11    -0.60        0                               : k_infinite
-                       1.000   0.00  9.000E+02  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       1.000    1.00E-30  9.000E+02  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  C2H5O + NO = CH3CH2ONO                             2.60E-28     0.00        0 -800 :                    D   : k_0 
                                                     1.99E-11     0.00      -72                               : k_infinite
-                       0.600   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.600    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3O + NO2 = CH3ONO2                               3.93E-29    -1.74        0 -800 :                    D   : k_0 
                                                     2.41E-11    -0.88        0                               : k_infinite
-                       0.600   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.600    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  C2H5O + NO2 = CH3CH2ONO2                           2.00E-27    -4.00        0 -800 :                    D   : k_0 
                                                     2.82E-11    -1.00        0                               : k_infinite
-                       0.600   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.600    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  C2H5 + NH2 = CH3CH2NH2                             1.76E-27    -3.85        0 -800 :                    D   : k_0 
                                                     1.31E-10     0.42        0                               : k_infinite
                        0.000   0.00  0.000E+00  0.000E+00  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH2CHNH2 + H = CH3CHNH2                            1.94E-25    -6.64     2900 -800 :                    D   : k_0 
                                                     9.79E-12     1.46      681                               : k_infinite
-                      -0.569 299.00  9.147E+03  1.524E+02  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                      -0.569  299.00  9.147E+03  1.524E+02  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CHCHNH2 + H = CH2CHNH2                             3.49E-27    -1.30        0 -800 :                    D   : k_0 
                                                     2.03E-10     0.20        0                               : k_infinite
-                       0.500   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.500    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH2CNH2 + H = CH2CHNH2                             3.49E-27    -1.30        0 -800 :                    D   : k_0 
                                                     2.03E-10     0.20        0                               : k_infinite
-                       0.500   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.500    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CHCNH2 + H = CHCHNH2                               4.86E-28    -4.66     1900 -800 :                    D   : k_0 
                                                     3.86E-11     1.27     1362                               : k_infinite
-                   0.788 -1.021E+04  1.000E+30  1.000E+18  4                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.788  -10210.00  1.000E+30  1.000E+18  4                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         2.000 
                                       CO2        3.000 
                                       H2O        5.000 
                                       H2         2.000 
  CHCNH2 + H = CH2CNH2                               4.86E-28    -4.66     1900 -800 :                    D   : k_0 
                                                     3.86E-11     1.27     1362                               : k_infinite
-                   0.788 -1.021E+04  1.000E+30  1.000E+18  4                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.788  -10210.00  1.000E+30  1.000E+18  4                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         2.000 
                                       CO2        3.000 
                                       H2O        5.000 
                                       H2         2.000 
  CH3NHCH2 + H = CH3NHCH3                            1.59E-24    -7.08     3361 -800 :                    D   : k_0 
                                                     3.05E-09    -0.99      794                               : k_infinite
-                       0.842 125.00  2.219E+03  6.882E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.842  125.00  2.219E+03  6.882E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  O3P + O3P = O2                                     9.82E-34    -0.50        0 -801 :                    D   : k_0 
                                                   8                                                          : (No of M) 
                                       CO         1.900 
@@ -307,7 +307,7 @@
                                                     1.12E+15    -4.81    35170                               : 1.013E+02 
  H2O2 = OH + OH                                     8.30E-06    -2.30    24510 -900 :                    D   : k_0 
                                                     3.39E+14     0.90    24510                               : k_infinite
-                       0.430   0.00  1.000E+30  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.430    1.00E-30  1.000E+30  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       O2         1.200 
                                       CO         2.800 
                                       CO2        1.600 
@@ -318,16 +318,16 @@
                                       H2O2       7.700 
  CH3OH = CH3 + OH                                   1.17E+02    -7.00    49270 -900 :                    D   : k_0 
                                                     6.24E+16    -0.61    46530                               : k_infinite
-                  -0.475  3.558E+04  1.116E+03  9.023E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                      -0.475  35580.00  1.116E+03  9.023E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3OH = 1CH2 + H2O                                 9.92E+02    -8.23    49980 -900 :                    D   : k_0 
                                                     9.44E+15    -1.02    46110                               : k_infinite
-                   2.545  3.290E+03  4.732E+04  4.711E+04  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       2.545  3290.00  4.732E+04  4.711E+04  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3OH = CH2OH + H                                  6.40E+00    -7.24    52910 -900 :                    D   : k_0 
                                                     2.38E+10     5.04    42470                               : k_infinite
-                 -73.910  3.705E+04  4.150E+04  5.220E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                     -73.910  37050.00  4.150E+04  5.220E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3O = H2CO + H                                    1.15E-06    -3.00    12220 -900 :                    D   : k_0 
                                                     6.80E+13     0.00    13160                               : k_infinite
-                   0.900  2.500E+03  1.300E+03  1.000E+99  6                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.900  2500.00  1.300E+03  1.000E+99  6                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -336,7 +336,7 @@
                                       C2H6       3.000 
  C2H4 = H2 + H2CC                                   1.01E+04    -9.31    50210 -900 :                    D   : k_0 
                                                     9.84E+13     0.44    44630                               : k_infinite
-                       0.735 180.00  1.035E+03  5.417E+03  7                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.735  180.00  1.035E+03  5.417E+03  7                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         1.500 
                                       CO2        2.000 
                                       H2O        6.000 
@@ -357,25 +357,25 @@
                                       C2H2       2.500 
  CH3CHO = CH3 + HCO                                 1.74E+07   -11.30    48220 -900 :                    D   : k_0 
                                                     1.20E+18    -1.74    43420                               : k_infinite
-                       0.002 718.10  6.089E+00  3.780E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.002  718.10  6.089E+00  3.780E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3CHO = CH4 + CO                                  1.94E+06   -11.30    48220 -900 :                    D   : k_0 
                                                     1.33E+17    -1.74    43420                               : k_infinite
-                       0.002 718.10  6.089E+00  3.780E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.002  718.10  6.089E+00  3.780E+03  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3CO = CH3 + CO                                   3.71E-08    -0.97     7340 -900 :                    D   : k_0 
                                                     3.89E+13     0.63     8497                               : k_infinite
-                   0.629  8.730E+09  5.520E+00  7.600E+07  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.629    8.73E+09  5.520E+00  7.600E+07  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3CO = CH2CO + H                                  9.14E+01   -10.27    27850 -900 :                    D   : k_0 
                                                     5.28E+12     1.92    22620                               : k_infinite
-                   0.601  8.103E+09  6.677E+02  5.000E+09  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.601    8.10E+09  6.677E+02  5.000E+09  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH2CHO = CH2CO + H                                 3.85E-04    -3.80    21830 -900 :                    D   : k_0 
                                                     6.08E+14    -0.15    22930                               : k_infinite
-                       0.985 393.00  9.800E+09  5.000E+09  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.985  393.00  9.800E+09  5.000E+09  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH2CHO = CH3 + CO                                  4.37E-03    -5.07    20760 -900 :                    D   : k_0 
                                                     1.53E+13     0.29    20260                               : k_infinite
-                   0.000  1.150E+03  4.990E+09  1.790E+09  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.000  1150.00  4.990E+09  1.790E+09  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  CH3OCH3 = CH3 + CH3O                               1.65E+07   -11.40    46910 -900 :                    D   : k_0 
                                                     5.37E+17    -0.66    42300                               : k_infinite
-                       1.000   0.00  8.800E+02  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       1.000    1.00E-30  8.800E+02  1.000E+18  8                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
                                       CO         2.250 
                                       CO2        3.000 
                                       H2O        9.000 
@@ -397,10 +397,10 @@
                                       He         0.700 
  NH2OH = NH2 + OH                                   1.55E-01    -5.96    33580 -900 :                    D   : k_0 
                                                     7.96E+16    -1.31    32220                               : k_infinite
-                       0.310   0.00  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.310    1.00E-30  1.000E+30  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  HNO2 = HONO                                        5.15E-06     0.00    15840 -900 :                    D   : k_0 
                                                     2.50E+14     0.00    16240                               : k_infinite
-                       1.149   0.00  3.125E+03  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       1.149    1.00E-30  3.125E+03  1.000E+30  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  N2O = N2 + O3P                                     9.97E-10     0.00    28880 -900 :                    D   : k_0 
                                                     9.90E+10     0.00    29110                               : k_infinite
                        0.000   0.00  0.000E+00  0.000E+00  3                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
@@ -409,7 +409,7 @@
                                       N2         1.700 
  CH3ONO = CH3 + NO2                                 2.09E-07     0.00    21120 -900 :                    D   : k_0 
                                                     1.80E+16     0.00    29410                               : k_infinite
-                       0.183   0.00  1.000E+30  1.000E+18  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
+                       0.183    1.00E-30  1.000E+30  1.000E+18  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 
  H2NCHO = CO + NH3                                  1.38E-09     0.00    24680 -900 :                    D   : k_0 
                                                     1.00E+14     0.00    37970                               : k_infinite
                        0.000   0.00  0.000E+00  0.000E+00  0                                                 : Troe parameters: a, T***, T*, T**, (No of M) 

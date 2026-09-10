@@ -68,6 +68,8 @@ c      ...read input file
        if(nummethod.eq.2)write(*,1002)
        read(2, *)sensi,drate,stsensi,endsensi,max_nout
        read(2, *)rtol,maxerrsteady
+       read_varch=0
+       if(sensi.eq.3)read_varch=1
        close(2)
 
        return
@@ -506,14 +508,18 @@ c      ...read reaction file lines; format: a50, 48 char for data, # error + sou
              if(line(1:1).eq.'!'.or.line(1:256).eq.' ')cycle
              i=i+1
              read(line(1:50),'(a50)',err=100)reac(i)
-             read(line(51:83),*,err=100)alpha(i),beta(i),gamma(i),
+             if(read_varch.eq.0)then
+               read(line(51:83),*,err=100)alpha(i),beta(i),gamma(i),
      #       rtype(i)
-             read(line(87:108),1010,err=100)iwk1,iwk2,tkcode(i),
+             else
+               read(line(51:83),*,err=100)alpha(i),beta(i),gamma(i),
+     #       var_rate(i)
+             read(line(87:108),1010,err=100)iwk1,iwk2,tkcode(i), ! @Arturo is this deprecated?
      #       lerror(i),ksource(i)
              read(line(111:256),'(a146)',err=100)comment(i)
              tkmin(i)=dble(iwk1)
              tkmax(i)=dble(iwk2)
-             if(tkcode(i).ne.'<fix'.and.tkcode(i).ne.'>fix'.and.
+             if(tkcode(i).ne.'<fix'.and.tkcode(i).ne.'>fix'.and. ! @Arturo is this deprecated?
      #          tkcode(i).ne.'<>fx'.and.tkcode(i).ne.'<zer'.and.
      #          tkcode(i).ne.'>zer'.and.tkcode(i).ne.'<>zr')
      #          tkcode(i)(1:4)='    '

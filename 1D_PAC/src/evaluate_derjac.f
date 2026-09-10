@@ -5,33 +5,40 @@ c      Evaluate function f in continuity equation: f_i^j = d[n_i^j]/dt
        include 'pac.common'       
        integer i,j,k,l,id
        real*8 rwk
+c       tau_min=1.0d0
+c       tau_max=0.0d0
 c Loop over height and species
        do j=1,nz
           do i=1,nspec
-c            if (j.eq.1)then
-c             write(*,*)'abun',abun(idreag(id,1),j),j,spec(i)
-c             write(*,*)
-c            endif
 c      ...evaluate chemical rate of formation/destruction: f_i^j = dn_i^j/dt 
              f(i,j)=0.0d0
              do k=1,nterm(i)
                 id=idterm(i,k)
                 rwk=1.0d0
                 do l=1,nreag(id)
+                   if(abun(idreag(id,l),j).lt.0.0d0)then
+                     write(*, *)'Negative abun:',abun(idreag(id,l),j)
+                     write(*, *)'Spec',spec(i)
+                     abun(idreag(id,l),j)=0.0d0
+                   endif
                    rwk=rwk*abun(idreag(id,l),j)*density(j)
                 enddo   
                 f(i,j)=f(i,j)+sterm(i,k)*fterm(i,k)*krate(id,j)*rwk
 
-                if(IEEE_IS_NAN(f(i,j)))then     
-                 write(*,*)'NaN found',f(i,j)
-                 write(*,*)'spec',spec(i),i
-                 write(*,*)'krate ',krate(id,j)
-                 write(*,*)'rwk',rwk
-                 write(*,*)'density',density(j),j
-                 write(*,*)'abun',abun(idreag(id,1),j)
-                 errflag=2  ! @Arturo, I want this to stop if NaNs are found?
-                 write(*,*)
+                if (IEEE_IS_NAN(f(i,j))) then
+                  write(*, *) 'NaN detected in f:',i,j,f(i, j)
+                  stop 'E- NaN detected in f_dlsodes'
+                endif
+
+               if(krate(id,j).lt.0.0d0)then
+                  write(*, *) 'Negative reaction rate:',id,j,krate(id,j)
                endif
+c                tau_ij=density(j)/(krate(id,j)*rwk)
+c                if (tau_ij.lt.tau_min)then
+c                 tau_min=tau_ij
+c                elseif (tau_ij.gt.tau_max)then
+c                 tau_max=tau_ij
+c                endif
 
              enddo
              if (writekrate)chem_ctbn(i,j)=f(i,j)
@@ -57,6 +64,7 @@ c      ...add photochemical contribution to f_i^j
 c End of loop over height and species
           enddo
        enddo
+
 
        return
        end
@@ -100,6 +108,7 @@ c      ...evaluate jacobian of formation/destruction: d[dn_i^j/dt]/dy_k^j = d[dn
                       enddo
                       df(i,j,k)=df(i,j,k)+density(j)*
      #                sterm(i,l)*fterm(i,l)*krate(id,j)*rwk*iswk
+
                    endif
                 enddo
 
@@ -120,6 +129,12 @@ c     ...add photochemical contribution to jacobian: d[dn_i^j/dt]/dy_k^j
                       endif
                     enddo
                  endif
+
+               if (abs(df(i, j, k)).lt.tiny_value)then
+                  df(i,j,k)=0.0d0
+                  write(*,*)'W-Zero jacobian detected:',i,j,k
+               endif
+
 
 c End of loop over height and species i,k
              enddo

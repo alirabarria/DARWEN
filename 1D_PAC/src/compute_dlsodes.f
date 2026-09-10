@@ -14,18 +14,18 @@
      # y(nmaxzs),atol(nmaxzs),tstep,tmin,wkerr,
      # tin,o_abun(nmaxspec,nmaxz),
      # stdy_abun(nmaxspec,nmaxz),stdy_o_abun(nmaxspec,nmaxz),
-     # tloop,ini_tout,stdy_tout,stdy_time,abunminvary
+     # tloop,ini_tout,stdy_tout,stdy_time,abunminvary,abun_min
        external f_dlsodes,jac_dlsodes
 
 c      ...Initialize variables
       
        t_total=0.0d0                               ! initial time of simulation @Arturo
-       ini_tout=1.0d-10                          !! first output time, should it be that small?
+       ini_tout=1.0d-10                          !! first output time, should it be that small? 1.0d-10
        tout=ini_tout                           
        tmin=day                                  ! minimum time to integrate
        tmax=13.75d9*year                         ! maximum time: age of the Universe
        tstep=10.0d0**0.2d0                       ! time step factor after tmin
-       
+       tiny_value=1e-80                         ! threshold to consider values = 0
 c       rtol=1.0d-4                              ! relative tolerance for DLSODES (previously -8 RT=1.0d-3, -5 for @Arturo)
        abunminsteady=1.0d-20                  !! lower abundance cutoff to evaluate steady state (RT=1.0d-20) @Arturo
        abunminvary=1.0d-30
@@ -41,6 +41,7 @@ c       maxerrsteady=3.0*rtol                    ! relative tolerance to conside
        first_vary=.false.
        errflag=0
        nout=0
+       abun_min=1.0d0
        call conservation(0)
        write(*, 1001)rtol
        write(*,*)
@@ -61,8 +62,8 @@ c      ...store times and abundances as "old" values, assign abundances to array
              enddo
           enddo
           do i=1,nzs
-c             atol(i)=max(1.0d-20,1.0d-15*y(i))
-             atol(i)=1.0d-99
+             atol(i)=max(1.0d-78,1.0d-15*y(i))
+c             atol(i)=1.0d-99
           enddo
 
 c      ...get rate constants, photorates, and diffusion terms, why should they update them? @Arturo 
@@ -86,7 +87,7 @@ c      ...small loop of time (normally just one step if DLSODES integrates up to
              istate=1                            ! call DLSODES
              iwork_dlsodes(:)=0
              rwork_dlsodes(:)=0.0d0
-             iwork_dlsodes(6)=1000               ! MXTSEP to DLSODES @Arturo
+             iwork_dlsodes(6)=500               ! MXTSEP to DLSODES @Arturo
              call compute_iaja(nmaxzs+1,nmaxnzjac,ia,ja,nnz)
              iwork_dlsodes(30+1:30+nzs+1)=ia(1:nzs+1)
              iwork_dlsodes(31+nzs+1:31+nzs+nnz)=ja(1:nnz)
@@ -104,6 +105,11 @@ c             write(*,*)'t_total=',t_total,'tloop=',tloop,'tout=',tout
                       neg=neg+1
                       abun(i,j)=abunmin
                    endif
+                   if(abun(i,j).lt.abun_min)abun_min=abun(i,j)
+                   if (abun(i,j).lt.tiny_value)then
+                     abun(i, j)=tiny_value
+                     write(*,*)'W-Zero abundance detected:',i,j
+                   endif
                 enddo
              enddo
 c             if(t_total.gt.tmin)write(*,*)'abun last err',
@@ -111,7 +117,7 @@ c     #       abun(errspec,erralti)
 c             if(neg.gt.0)stop 'E- Negative abundance found'
 c      ...end of small loop of time
           enddo
-
+         write(*,*)'abun_min = ',abun_min
 c      ...return to real times
 c          t=tin+t
 c          tout=tin+tout

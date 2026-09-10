@@ -163,7 +163,8 @@ c
      # idprod(nmaxreac,nmaxprod),idrvreac(nmaxreac)
        real*8 alpha(nmaxreac),beta(nmaxreac),gamma(nmaxreac),
      # tkmin(nmaxreac),tkmax(nmaxreac),kerror(nmaxreac),
-     # krate(nmaxreac,nmaxz),old_alpha(nmaxreac),warnreac
+     # krate(nmaxreac,nmaxz),old_alpha(nmaxreac),warnreac,
+     # var_rate(nmaxreac)
        character*50 reac(nmaxreac)
        character*4 tkcode(nmaxreac)
        character*(nmaxcharspec) reag(nmaxreac,nmaxreag),
@@ -201,11 +202,12 @@ c                M (measured), E (estimated), L (literature), C (calculated)
 c      comment:  comment on the reaction rate constant expression
 c      kwarning: .true. if rate constant has a warning
 c      warnreac: 1 if you want reac warnings
+c      var_reac: vector sometimes needed to account for rate changes
 
        common/ireac/nreacfile,nreac,rtype,nreag,nprod,ilenreag,
      # ilenprod,idreag,idprod,idrvreac,warnreac
        common/rreac/alpha,beta,gamma,tkmin,tkmax,kerror,krate,
-     # old_alpha
+     # old_alpha,var_rate
        common/creac/reac,tkcode,reag,prod,lerror,ksource,comment
        common/lreac/kwarning
 
@@ -351,7 +353,8 @@ c
        real*8 f(nmaxspec,nmaxz),df(nmaxspec,nmaxz,nmaxspec),
      # df_dif(nmaxspec,nmaxz),df_jm_dif(nmaxspec,nmaxz),
      # df_jp_dif(nmaxspec,nmaxz),cn_dt,cn_dy(nmaxspec,nmaxz),time,
-     # errsteady,dydtscale,elabscale,rtol,abunminsteady,maxerrsteady
+     # errsteady,dydtscale,elabscale,rtol,abunminsteady,maxerrsteady,
+     # tiny_value
        logical steady
 
 c      nzs:       number of layers x number of species
@@ -376,6 +379,7 @@ c      itime:     counter for integration times to write out results
 c      rtol:      relative tolerance parameter (scalar)
 c      maxerrsteady: relative tolerance to consider steady state
 c      abunminsteady: threshold in abundance to calculate relative error 
+c      tiny_value: threshold to consider values = 0 ! @Arturo
 c      ---------- Newton-Raphson:
 c      idcons:    species identifier for conservation equation of elements/charge
 c      dydtscale: mean value to scale dy/dt equations                 [s-1]
@@ -384,7 +388,7 @@ c      elabscale: mean element abundance to scale conservation equations
        common/iconteq/nzs,idcons,itime
        common/rconteq/f,df,df_dif,df_jm_dif,df_jp_dif,cn_dt,cn_dy,
      # time,errsteady,dydtscale,elabscale,rtol,abunminsteady,
-     # maxerrsteady
+     # maxerrsteady,tiny_value
        common/lconteq/steady
 
 c    --------------------------------------------------------------------------
@@ -405,8 +409,8 @@ c      stsensi:   which rate index should start the variation in case sensi=2
 c      endsensi:  which rate index should end the variation in case sensi=2
 c      drate:     how much should the rate constant be varied
        common/isensi/irate,sensi,stsensi,endsensi,rvirate,nout,errflag,
-     # max_nout
-       common/lsensi/change_rate,first_vary,writekrate
+     # max_nout,read_varch
+       common/lsensi/change_rate,first_vary,writekrate,read_varch
        common/rsensi/drate,diff_ctbn,chem_ctbn
        common/charsensi/reacs
 

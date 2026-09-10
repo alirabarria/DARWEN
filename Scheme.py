@@ -11,7 +11,7 @@ class Scheme:
     def __init__(self, ids, molecs, master_df, parent_key='', scheme_id=0, out_path='1D_PAC/gen/', pop_str='pop0', 
                  planets=['hd2094', 'hd1897'], parent_loss=1e5, len_reacs=958, max_mols=107,
                  len_ids_pool=-1, schemes_path='saved_schemes/', search_first=True, change_fname_key=True,
-                 curiosity=0, reacs_dict={}):
+                 curiosity=0, reacs_dict={}, specs_from_file={}, specs_lines=[]):
         """
         Initializes a Scheme object with given identifiers, molecules, and configuration parameters.
 
@@ -29,20 +29,23 @@ class Scheme:
         - search_first (bool): Whether to search for the scheme in the existing database initially.
         """
         self.ids = np.sort(np.unique(ids))
-        self.genes = self.ids_to_genes(self.ids, len_genes=len_reacs)
+        self._len_genes=len_reacs
+        self.genes = self.ids_to_genes(self.ids)
         self.molecs = np.sort(np.unique(molecs))
         self.loss, self._fname_key, self._found, self._found_data, self._loss_type = None, '', False, [], ''
         self._scheme_id, self._pop_str, self._out_path, self._planets = scheme_id, pop_str, out_path, planets
         self._len_ids_pool, self._schemes_path, self._search_first = len_ids_pool, schemes_path, search_first
         self._parent_key, self.parent_loss, self._curiosity, self._len_reacs =parent_key, parent_loss, curiosity, len_reacs
         self._reacs_dict = reacs_dict
+        self._specs_from_file = specs_from_file
+        self._specs_lines = specs_lines
 
         
         if search_first:
             self._found, self._found_path = self.search_scheme(self._schemes_path, master_df, change_fname_key=change_fname_key)
 
-    def ids_to_genes(self, reacs_array, len_genes=958):
-        chromosome = np.zeros((len_genes), dtype=bool)
+    def ids_to_genes(self, reacs_array):
+        chromosome = np.zeros((self._len_genes), dtype=bool)
         inds = np.array(reacs_array).astype(int)
         chromosome[inds] = True
         return chromosome
@@ -50,7 +53,8 @@ class Scheme:
     def genes_to_ids(self):
         self.ids = np.where(self.genes)[0]
 
-    def self_mutate(self, mutation_prob=.01, len_genes=958):
+    def self_mutate(self, mutation_prob=.01):
+        len_genes = self._len_genes
         ids_to_change = np.random.randint(0, len_genes, size=int(len_genes*mutation_prob))
         genes_to_change = self.genes[ids_to_change]
         self.genes[ids_to_change] = [not aux for aux in genes_to_change]
@@ -148,6 +152,7 @@ class Scheme:
                 ind_df = len(master_df)
             else:
                 ind_df = force_ind
+            self.genes_list = self.genes.astype(int).tolist()
             #                      ['mols_len', 'ids_len' 'ids', 'molecs',   
             master_df.loc[ind_df]=[len(self.molecs), len(self.ids), self.ids.tolist() , self.molecs.tolist(), 
                                     # 'loss', 'delta_loss', 'losses',       
@@ -159,7 +164,7 @@ class Scheme:
                                     # 'date', 'loss_type', 'worst_mols', 'weights', 'planets'
                                     str(date.today()), self._loss_type, self._worst_mols, weights, self._planets,
                                     # 'photo_flag', 'single_planet_flag', 'curiosity', 'genes',
-                                    photo_flag, single_planet_flag, self._curiosity, np.array(self.genes).astype(int),
+                                    photo_flag, single_planet_flag, self._curiosity, self.genes_list,
                                     # 'model_dict']
                                     model_dict]
         if len(directories) > 0:
@@ -197,6 +202,7 @@ class Scheme:
 
         if not self._search_first or not self._found:
             self._fname_key=init_str+'_'+str(self._scheme_id)
+
         for id_planet in range(len(self._planets)):
             planet_flag = self._planets[id_planet]
             fname = self._fname_key
@@ -204,7 +210,7 @@ class Scheme:
             inp_lines= templates[id_planet]
             
             with open(out_path / Path(fname+'_'+planet_flag+'.inp'), 'w') as new_inp_file:
-                if change_spec_file:
+                if change_spec_file and len(self._specs_lines) > 0:
                     inp_lines[0] = fname+'.spec              ! species file\n'
                 inp_lines[3] = fname+'.reac               ! reaction file\n'
                 for line in inp_lines:
@@ -217,10 +223,12 @@ class Scheme:
             
             if not self.loss == None:
                 write_new_scheme(self.ids, self.molecs, fname=str(out_path)+'/'+fname, write_ids=write_ids, loss=self.losses[id_planet],
-                                imp_mols_flag=imp_mols_flag, reacs_dict=reacs_dict)
+                                imp_mols_flag=imp_mols_flag, reacs_dict=reacs_dict, specs_lines=self._specs_lines,
+                                specs_from_file=self._specs_from_file)
             else:
                 write_new_scheme(self.ids, self.molecs, fname=str(out_path)+'/'+fname, write_ids=write_ids,
-                                imp_mols_flag=imp_mols_flag, reacs_dict=reacs_dict)
+                                imp_mols_flag=imp_mols_flag, reacs_dict=reacs_dict, specs_lines=self._specs_lines,
+                                specs_from_file=self._specs_from_file)
 
 
                 

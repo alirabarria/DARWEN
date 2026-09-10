@@ -4,6 +4,7 @@ import subprocess
 import os
 import shutil
 from pathlib import Path
+import gc
 from sklearn.metrics import r2_score, mean_absolute_percentage_error
 
 file_path = os.path.dirname(os.path.realpath(__file__))
@@ -288,9 +289,9 @@ def move_files_with_string(folder_path, target_folder, string_to_match, delete_p
     
     # Use the find command in bash to locate files containing the specified string
     bash_command = f'find {folder_path} -type f -name "*{string_to_match}*"'
-
+    env = os.environ.copy()
     # Run the bash command and capture the output
-    result = subprocess.run(bash_command, shell=True, capture_output=True, text=True)
+    result = subprocess.run(bash_command, shell=True, capture_output=True, text=True, env=env)
 
     # Extract the file paths from the output
     file_paths = result.stdout.split('\n')
@@ -361,55 +362,25 @@ def extract_molecs(line, mode='array', link='->', return_arrehnius=False, int_ma
                 to_return+=' + '+pr
         return to_return
 
-"""
-def network_to_df(fname='1D_PAC/venot2020reduced.reac', start_i=11, mid_i=257, add_col='id'):
-    reacs_vreduc = open(fname, 'r')
-    vreduc_lines = reacs_vreduc.readlines()
-    i = start_i
-    c = 0
-    columns = ['reacs', 'prods', 'molecs']
-        
-    if add_col != '':
-        reacs_df = pd.DataFrame(columns=np.append(columns, [add_col]))
-    else:
-        reacs_df = pd.DataFrame(columns=columns)
-        
-    while i < len(vreduc_lines):
-        reacs, prods, rtype, alpha, beta, gamma = extract_molecs(vreduc_lines[i], return_arrehnius=True)
-        reacs_df.at[c, 'reacs'] = str(reacs)
-        reacs_df.at[c, 'prods'] = str(prods)
-        reacs_df.at[c, 'molecs'] = np.append(reacs, prods)
-        reacs_df.at[c, 'rtype'] = rtype
-        reacs_df.at[c, 'alpha'], reacs_df.at[c, 'beta'], reacs_df.at[c, 'gamma'] = alpha, beta, gamma
-
-        if i < mid_i:
-            c+=1
-            i+=1
-
-        else:
-            i+=1
-            while (i < len(vreduc_lines) and len(vreduc_lines[i][:4].replace(' ', '')) == 0):
-                i+=1      
-            c+=1
-    reacs_df.index = range(len(reacs_df))
-    return reacs_df
-
-"""
-
 def network_to_df(reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
            check_tol = 1e-4, signal_wrong_ids=True, id_col='id', return_df=True,
-           search_id = False, other_reacs_df=[], original_data_df=[]):
+           search_id = False, other_reacs_df=[], original_data_df=[], find_Fg=True):
     reacs_dict = {}
     reacs_file = open(reacs_full_fname, 'r')
     reacs_lines = reacs_file.readlines()
     to_dict = ''
     c = 0
     df = pd.DataFrame()
-    for i in range(len(reacs_lines)-1): 
-        if reacs_lines[i].split()[0] == '!':
+    for i in range(len(reacs_lines)): 
+        not_spaces = reacs_lines[i].replace(' ', '')
+        if len(not_spaces.replace('\n', '')) == 0 or not_spaces[0] == '!':
             continue
         to_dict += reacs_lines[i]
-        next_line = reacs_lines[i+1]
+        if i < len(reacs_lines) - 1:
+            next_line = reacs_lines[i+1]
+        else:
+            next_line = ''
+
         if len(next_line[:4].replace(' ', '')) != 0 or i + 1 == len(reacs_lines):
             reacs_dict[c] = to_dict
             to_dict = ''
@@ -421,6 +392,41 @@ def network_to_df(reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
             df.at[ind, 'reacs'], df.at[ind, 'prods'], df.at[ind, 'rtype'] = str(reacs), str(prods), rtype
             df.at[ind, 'molecs'] = np.append(reacs, prods)
             df.at[ind, 'alpha'], df.at[ind, 'beta'], df.at[ind, 'gamma'] = alpha, beta, gamma
+
+            if abs(rtype) in [800, 810, 811, 812, 900, 910, 911]:
+                df.at[ind, 'k_inf'] = str(reacs_dict[c - 1].split('\n')[1].split()[:3])
+                df.at[ind, 'Troe'] = str(reacs_dict[c - 1].split('\n')[2].split()[:4])
+                feff = {}
+                for line in reacs_dict[c - 1].split('\n')[3:]:
+                    if line == '':
+                        continue
+                    feff[line.split()[0]] = line.split()[1]
+                df.at[ind, 'feff'] = str(feff)
+            
+            elif abs(rtype) in [801, 901]:
+                feff = {}
+                for line in reacs_dict[c - 1].split('\n')[2:]:
+                    if line == '':
+                        continue
+                    feff[line.split()[0]] = line.split()[1]
+                df.at[ind, 'feff'] = str(feff)
+            
+            elif (30 < abs(rtype) and abs(rtype) < 45) or abs(rtype)==908:
+                prefs = [line.split()[-1] if len(line.replace(' ', '')) != 0 else '' for line in reacs_dict[c - 1].split('\n')]
+                if prefs[-1] == '':
+                    prefs = prefs[:-1]
+                alphas, betas, gammas = [alpha], [beta], [gamma]
+                for line in reacs_dict[c - 1].split('\n')[1:]:
+                    if line == '':
+                        continue
+                    alphas.append(line.split()[0])
+                    betas.append(line.split()[1])
+                    gammas.append(line.split()[2])
+                df.at[ind, 'prefs'] = str(prefs)
+                df.at[ind, 'alphas'] = str(alphas)
+                df.at[ind, 'betas'] = str(betas)
+                df.at[ind, 'gammas'] = str(gammas)
+
             
             found_id = False
             if search_id and len(other_reacs_df) > 0:
@@ -434,9 +440,10 @@ def network_to_df(reacs_full_fname='1D_PAC/venot2020.reac', force_id=False,
                     elif signal_wrong_ids:
                         print ('signaling:', ind, c - 1, alpha_row, alpha)
 
-            if len(original_data_df) > 0:
+            if len(original_data_df) > 0 and find_Fg:
                 try:
                     df.at[ind, 'F'], df.at[ind, 'g'] = original_data_df.at[ind, 'F'], original_data_df.at[ind, 'g']
+                         
                 except Exception as e:
                     print ("Couldn't find F and g for", ind)
             
@@ -514,6 +521,7 @@ def add_id(reacs_in_venot=[], reacs_full_fname='1D_PAC/venot2020.reac', force_id
                     print ('signaling:', ind, c - 1, alpha_row, alpha)
     return reacs_in_venot, reacs_from_file
 
+"""
 def run_pac(pop_str, silent=False, hide_output=False, out_file=None, out_path=Path(), max_processes=6, command='./'):
 
     if not silent:
@@ -531,11 +539,39 @@ def run_pac(pop_str, silent=False, hide_output=False, out_file=None, out_path=Pa
     output_file.touch(exist_ok=True)
 
     command = f'{command}multipac.sh {pop_str} {max_processes} > {output_file} 2>&1'
-
+    gc.collect()
     with open(output_file, 'w') as output_file:
         process = subprocess.Popen(command, shell=True, stdout=output_file, stderr=subprocess.STDOUT, 
                                        cwd=out_path)
         process.wait()  # Wait for the process to finish
+"""
+
+
+def run_pac(pop_str, silent=False, hide_output=False, out_file=None, out_path=Path(), max_processes=6, command='./'):
+    if not silent:
+        print('.........................................................................................................', file=out_file)
+        print('                                       Running', pop_str, file=out_file)
+        print('.........................................................................................................', file=out_file)
+        if hide_output:
+            out_file.flush()
+
+    # Prepare output file path
+    output_file_path = (out_path / f'output_{pop_str}.txt').resolve()
+    output_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Build command as list (safe, no shell=True)
+    command_list = [command + 'multipac.sh', pop_str, str(max_processes)]
+
+    gc.collect()
+
+    with open(output_file_path, 'w') as output_file:
+        process = subprocess.Popen(
+            command_list,
+            stdout=output_file,
+            stderr=subprocess.STDOUT,
+            cwd=out_path
+        )
+        process.wait()
 
 
 def format_line(*args, total_length=32):
@@ -701,7 +737,7 @@ def get_k(reacs_df, ind, t, p, abuns={}):
     beta = reacs_df.at[ind, 'beta']
     gamma = reacs_df.at[ind, 'gamma']
     
-    if 30 < abs_rtype and abs_rtype < 40:
+    if (30 < abs_rtype and abs_rtype < 45) or abs(rtype)==908: #Plog
         prefs = []
         array_data = data.split('\n')[:-1]
         unc_type = array_data[0].split(':')[1].strip()
@@ -942,12 +978,14 @@ def add_params(reacs_df, abun_df, add_krate=False):
 
 
 
-def initialize(network='veillet', fetuccini_mode=False):
+def initialize(network='veillet', fetuccini_mode=False, force_recalc=False,
+                lira_required=False):
     
     global imp_molecs, abund_df, all_molecs, prefix, reacs_from_lira, reacs_in_lira, specs_from_file, specs_lines
     imp_molecs = ['H2O', 'CH4', 'CO', 'CO2', 'NH3', 'HCN', 'C2H2', 'OH']
-    reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/lira_val2024.reac'), 
-                return_df=True)
+    if lira_required:
+        reacs_from_lira, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/lira_val2024.reac'), 
+                                                        return_df=True)
     
     if network == 'veillet':
         
@@ -973,22 +1011,25 @@ def initialize(network='veillet', fetuccini_mode=False):
         prefix = '/Users/arturolira/phd_no_icloud/DARWEN/VENOT2020/reactions_'
         
 
-        if os.path.exists(os.path.join(file_path, 'data_from_venot.csv')):
+        if os.path.exists(os.path.join(file_path, 'data_from_venot.csv')) and not force_recalc:
             data_from_venot = pd.read_csv(os.path.join(file_path, 'data_from_venot.csv'))
         else:
             data_from_venot = obtain_unc_factors(prefix = prefix)
-            data_from_venot.to_csv(os.path.join(file_path, 'data_from_venot.csv'))
+            data_from_venot.to_csv(os.path.join(file_path, 'data_from_venot.csv'), index=False)
         all_molecs = np.genfromtxt(os.path.join(file_path,'1D_PAC/mols.txt'), dtype=None, encoding=None)
         specs_file = open(os.path.join(file_path, '1D_PAC/venot2020.spec'), 'r')
         reacs_from_venot, reacs_in_venot = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020reduced.reac'), 
-                                            return_df=True)
-        reacs_from_file, reacs_in_full, reacs_in_lira = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020.reac'), return_df=True,
-                    search_id = True, force_id=True, id_col='id', original_data_df=data_from_venot,
-                    other_reacs_df=reacs_in_lira)
+                                            return_df=True, find_Fg=False)
+        reacs_from_file, reacs_in_full = network_to_df(reacs_full_fname=os.path.join(file_path, '1D_PAC/venot2020.reac'), return_df=True,
+                    search_id = False, force_id=True, id_col='id', original_data_df=data_from_venot,
+                    other_reacs_df=[], find_Fg=True)
         if fetuccini_mode:
-            abun_df, cons_err, _ = out_to_dfs(os.path.join(file_path,'1D_PAC/hd2094_optval_0905'), 
+            abun_df, cons_err, _ = out_to_dfs(os.path.join(file_path,'1D_PAC/hd2094_no_photo'), 
                     error_purposes=True, return_only_mols=False)
-            abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
+            if 'MMW[g]' in abun_df.columns:
+                abun_df = abun_df.drop(['nan', 'MMW[g]'], axis=1)
+            else:
+                abun_df = abun_df.drop(['nan'], axis=1)
             reacs_in_full = add_params(reacs_in_full, abun_df, add_krate=False)
 
     specs_lines = specs_file.readlines()

@@ -58,6 +58,13 @@ c         compute rate constant of reverse with therm data
                 dv=nprod(i)-nreag(i)
                 keq=(1.0d6/kboltz/tkin)**dv*dexp(ds-dh)
                 krate(i,j)=keq*krate(idrvreac(i),j)
+c                if(idrvreac(i).eq.1)then
+c                   write(*,*)reac(i),z(j)
+c                   write(*,*)ds,dh
+c                   write(*,*)krate(idrvreac(i),j),krate(i,j)
+c                   write(*,*)keq
+c                endif
+
                 if(idrvreac(i).eq.irate.and.change_rate)then
                    rvirate=0 !!!Changed rvirate
                    if(rtype(idrvreac(i)).lt.0)rvirate=i

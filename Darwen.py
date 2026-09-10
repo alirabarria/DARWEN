@@ -5,12 +5,12 @@ from Scheme import *
 
 class Darwen:
     def __init__(self, mutation_rate = 0.1, mutation_prob=.1, crossover_prob=.1, max_iter=50, silent=False, 
-                temp_path='temp/', imp_molecs=imp_molecs, all_molecs=all_molecs, 
+                temp_path='temp/', imp_molecs=[], all_molecs=[], 
                 templates=['1D_PAC/reduc_p10_03.inp'], full_dirs=['1D_PAC/conv_test'], 
                 fitness_metric='max_percent', big_loss_def=1e5,
                 weight_by='molecs', weight=[1e-3], push_imp_molecs=True, len_reacs=958,
                 molecs_low_limit=38, molecs_high_limit=55, initial_scheme_dir='1D_PAC/opt_sch_1217',
-                reacs_df=reacs_in_full, logarithmic_growth=False, n_fittest=15,
+                reacs_df=pd.DataFrame(), logarithmic_growth=False, n_fittest=15,
                 init_population=300, initial_kill_rate=0, initial_mutation_rate=0.2, n_crossover=1e3,
                 mod_elitism=5, mod_curious = 10, pop_prefix='pop', mutate_mols=True, n_population=15,
                 kill_rate=0.05, crossover_tries = 2, search_init='', start_changing_mols=True,
@@ -31,7 +31,7 @@ class Darwen:
                 max_comb_crossover=200, photo_flag=False, single_planet_flag=False, curiosity_factor=1,
                 max_curious_ids=3, always_deterministic=True, n_before_wheel=2,
                 extended_range_flag=False, add_per_delta=5, change_imp_molecs_flag=False,
-                reacs_dict=reacs_from_file):
+                reacs_dict={}, specs_lines=[], specs_from_file={}, compensate=1.5):
         
         """
         Initializes the Darwen class, which is designed to optimize chemical reaction schemes using a genetic algorithm.
@@ -118,7 +118,9 @@ class Darwen:
                       'always_deterministic': always_deterministic,
                       'extended_range_flag': extended_range_flag,
                       'add_per_delta': add_per_delta, 
-                      'change_imp_molecs_flag': change_imp_molecs_flag
+                      'change_imp_molecs_flag': change_imp_molecs_flag,
+                      'specs_lines': specs_lines, 'specs_from_file': specs_from_file,
+                      'compensate': compensate
                       
                      }
         self._hide_output = hide_output
@@ -199,7 +201,8 @@ class Darwen:
         elif len(initial_reacs)>0:
             self.initial_scheme = Scheme(initial_reacs, self._molecs_from_ids(initial_reacs), self.master_df, search_first=self.params['search_schemes_first'],
                                         schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'],
-                                        reacs_dict = self._reacs_dict)
+                                        reacs_dict = self._reacs_dict, specs_lines=self.params['specs_lines'],
+                                        specs_from_file=self.params['specs_from_file'])
             self.initial_loss= initial_loss
             
         else:
@@ -207,7 +210,8 @@ class Darwen:
                 np.random.seed(self._seed+1)
             initial_reacs = np.random.permutation(range(len_reacs))[:100]
             self.initial_scheme = Scheme(initial_reacs, self._molecs_from_ids(initial_reacs), self.master_df, search_first=self.params['search_schemes_first'],
-                                        schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'], reacs_dict = self._reacs_dict)
+                                        schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'], reacs_dict = self._reacs_dict, specs_lines=self.params['specs_lines'],
+                                        specs_from_file=self.params['specs_from_file'])
         
         if self.min_is_better:
             self.optimate_loss = np.min([big_loss_def, self.initial_loss])
@@ -544,7 +548,8 @@ class Darwen:
         initial_scheme = Scheme(ids_scheme, mols_to_return, self.master_df, scheme_id=0, out_path=self.temp_path, 
                                 search_first=self.params['search_schemes_first'], len_reacs=self.params['len_reacs'],
                                 schemes_path=self.schemes_path, parent_key='big_bang', planets=self.params['planets'],
-                                reacs_dict = self._reacs_dict)
+                                reacs_dict = self._reacs_dict, specs_lines=self.params['specs_lines'],
+                                        specs_from_file=self.params['specs_from_file'])
                                 
         if get_loss:
             
@@ -573,7 +578,7 @@ class Darwen:
     def _molecs_from_ids(self, reacs_array):
         molecs_to_return = np.array([])
         for j in reacs_array:
-            molecs_to_return = np.append(molecs_to_return, self.reacs_df.at[j, 'molecs'])
+            molecs_to_return = np.append(molecs_to_return, self.reacs_df.at[int(j), 'molecs'])
         return np.unique(molecs_to_return)
         
     def _crossover(self, n_times=1, pop_str='cpop', max_comb=100, search_schemes_first=False):
@@ -616,7 +621,8 @@ class Darwen:
                                         planets=self.params['planets'], len_ids_pool=len(offspring_ids), 
                                         search_first=search_schemes_first,
                                         schemes_path=self.schemes_path, len_reacs=self.params['len_reacs'],
-                                        reacs_dict = self._reacs_dict)
+                                        reacs_dict = self._reacs_dict, specs_lines=self.params['specs_lines'],
+                                        specs_from_file=self.params['specs_from_file'])
                                        
                     loss_there = False
                     if new_scheme._found or not search_schemes_first:
@@ -777,8 +783,8 @@ class Darwen:
                verbose=False, forbid_crossover=False, ensure_uniqueness=False, pop_str='pop0', 
                parent_key='', parent_loss=1e5, boost_mols=True, ensure_n_mols=True, smart_mode='sometimes', smart_threshold=1000, 
                max_threshold_ids=3, curious_pool_ratio=0.25, always_curiosity=True, forbid_self_mutation=False,
-               max_curious_ids=5, hide_warning=True, ensure_molecs_match=True, double_check_molecs=True,
-               compensate = 0):
+               max_curious_ids=5, hide_warning=True, ensure_molecs_match=True, double_check_molecs=True
+               ):
         
         """
             Applies genetic operations to evolve a population of chemical schemes towards better fitness.
@@ -827,8 +833,8 @@ class Darwen:
             if self._hide_output: self._out_file.flush()
         discarded = 0
         found_loss = 0
-        if compensate > 1:
-            n_population = int(compensate*n_population)
+        if self.params['compensate'] > 1:
+            n_population = int(self.params['compensate']*n_population)
             
         
         mutation_ints = []
@@ -843,7 +849,7 @@ class Darwen:
                 cross_genes = cross_scheme.genes
                 break_point0 = np.random.randint(0, len(cross_genes))
         
-                actual_genes = cross_scheme.ids_to_genes(reacs_array, len_genes=self.params['len_reacs'])
+                actual_genes = cross_scheme.ids_to_genes(reacs_array)
 
                 new_genes = np.append(cross_genes[:break_point0], actual_genes[break_point0:])
                 reacs_array = np.where(new_genes)[0]
@@ -911,7 +917,8 @@ class Darwen:
                               pop_str=pop_str, parent_loss=parent_loss, len_reacs=self.params['len_reacs'],
                               planets=self.params['planets'], len_ids_pool=len(reacs_pool), search_first=self.params['search_schemes_first'],
                               schemes_path=self.schemes_path, curiosity=curiosity,
-                              reacs_dict = self._reacs_dict)
+                              reacs_dict = self._reacs_dict, specs_lines=self.params['specs_lines'],
+                                        specs_from_file=self.params['specs_from_file'])
 
                
             n_fittest = self.params['n_fittest']
@@ -960,6 +967,19 @@ class Darwen:
     
     
     def _write_schemes(self, reset_init=True, opt_id='', init_str='opt', write_all_best=True, loss_threshold=1.0):
+        """
+        Writes the best schemes to disk, and updates the master dataframe with the new results.
+
+        Parameters:
+            reset_init (bool): If True, resets the initial scheme to the best scheme found.
+            opt_id (str): A string prefix for the file name of the best scheme.
+            init_str (str): A string prefix for the file name of the best scheme.
+            write_all_best (bool): If True, writes all best schemes found so far to disk.
+            loss_threshold (float): The minimum loss required for a scheme to be written to disk.
+
+        Returns:
+            None
+        """
         print ('Writing best schemes', file=self._out_file)
         if self._hide_output: self._out_file.flush()
         ind_best_scheme = -1
@@ -992,13 +1012,15 @@ class Darwen:
         self.optimate_scheme._write_scheme(write_ids=True, check_dir=True, init_str=init_str+opt_id+str(self._cwrite), 
                                            imp_mols_flag=self.measure_only_imp, out_path=self.rosetta_path, 
                                            templates=self._templates)
-        print (self.optimate_scheme.fname_key)
+        print (self.optimate_scheme._fname_key)
         
         
         self._cwrite+=1
         
-    def _run_pac(self, pop_str, silent=False, max_processes=6, command='./'): #command='sh '
-        
+    def _run_pac(self, pop_str, silent=False, max_processes=6, command='./',
+                 force_path=False): #command='sh '
+        if force_path and command == './':
+            command = self.temp_path.as_posix() + '/'
         run_pac(pop_str, silent=silent, max_processes=max_processes, command=command,
                 hide_output=self._hide_output, out_path=self.temp_path, out_file=self._out_file)
     
@@ -1011,7 +1033,7 @@ class Darwen:
     def run(self, n_iterations=-1, opt_str='opt', mutation_rate=-1, n_write=5, initialize=True, 
             multiple_runs=True, min_iteration_write=1, plot_loss=False, figsize=(7,5), deallocate=True,
             n_print_loss_detail=3, save_all_schemes=False, print_first_loss=False, max_processes=6,
-            crossover_pop=2):
+            crossover_pop=2, n_bottleneck = 10):
         """
         Executes the genetic algorithm to optimize chemical reaction schemes.
 
@@ -1061,7 +1083,7 @@ class Darwen:
                 smart_mode = 'never'
             new_schemes = self.mendel(self.initial_scheme.ids, self.initial_scheme.molecs,
                                             mutate_mols=self.params['start_changing_mols'], 
-                                            n_population=self.params['init_population'], compensate=2,
+                                            n_population=self.params['init_population'], 
                                             mutation_rate=self.params['initial_mutation_rate'],
                                             kill_rate=self.params['initial_kill_rate'], verbose=True,
                                             pop_str=pop_str, parent_key=self.params['initial_scheme_dir'].split('/')[1],
@@ -1255,6 +1277,18 @@ class Darwen:
                     n_population = crossover_pop
                 else:
                     new_best_schemes = self.best_schemes
+
+                if n_bottleneck > 0 and (iteration == n_bottleneck and not crossover_round):
+                    self._write_schemes(reset_init=True, init_str=opt_str, write_all_best=True, 
+                                    loss_threshold=self.params['save_schemes_threshold'])
+                    self.print_loss(self.optimate_scheme)
+                    if self.optimate_loss < self.params['save_schemes_threshold']:
+                        print ('Initiating bottleneck...', file=self._out_file)
+                        if self._hide_output: self._out_file.flush()
+                        new_best_schemes = [self.optimate_scheme]
+                        n_population = int(self.params['compensate']*self.params['init_population'])
+                    else:
+                        print ('Bottleneck threshold did not meet.', file=self._out_file)
                     
                 number_of_mols, number_of_reacs, imp_molecs_present, new_schemes = ([] for j in range(4))
                 self._start_id = 0
@@ -1274,11 +1308,9 @@ class Darwen:
                                             smart_mode=smart_mode,
                                             max_threshold_ids=self.params['max_smart_ids_per_reac'],
                                             smart_threshold=self.params['filter_ids_threshold'],
-                                            parent_loss=initial_scheme.loss, ensure_n_mols=True,
-                                            compensate=1.7
+                                            parent_loss=initial_scheme.loss, ensure_n_mols=True
                                             
                                             )
-                    print (self._start_id)
 
                     new_schemes.extend(schemes)
                     number_of_reacs.append(len(initial_scheme.ids))
@@ -1313,6 +1345,9 @@ class Darwen:
                     print ('Stop condition fullfilled with loss:', self.optimate_loss, file=self._out_file)
                     if self._hide_output: self._out_file.flush()
                     break
+
+            
+
 
 if __name__ == "__main__":
     photochem = True
@@ -1358,7 +1393,7 @@ if __name__ == "__main__":
     GA = Darwen(mutation_rate=0.1, mutation_prob =.2, crossover_prob= 0.4, kill_rate=0.1, 
                 mod_elitism=7, n_crossover=1e3, 
                 initial_mutation_rate=0.2, initial_kill_rate=0.15, 
-                molecs_low_limit=30, molecs_high_limit=55, weight=[1e-2, 1],  
+                molecs_low_limit=30, molecs_high_limit=55, weight=[1e-2, 1e-1],  
                 pop_prefix=pop_prefix, search_schemes_first=True, planets=planets,
                 init_population=init_population, n_fittest=n_fittest, n_population=n_population,
                 initial_scheme_dir=initial_dir, full_dirs=full_dirs, templates=templates, 
