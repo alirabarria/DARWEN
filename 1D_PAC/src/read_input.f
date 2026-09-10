@@ -81,8 +81,8 @@ c      ...read input file
        stop
 
 1000   format(2x,'I- Running model ',a)
-1001   format(2x,'I- Pressure range from '1pg10.2' to '1pg10.2
-     # ' with 'i4' height layers')
+1001   format(2x,'I- Pressure range from ',1pg10.2,' to ',1pg10.2,
+     # ' with ',i4,' height layers')
 1002   format(2x,'I- DLSODES selected as numerical method')
 1010   format(2x,'W- Reaction warnings deactivated')
 
@@ -514,6 +514,8 @@ c      ...read reaction file lines; format: a50, 48 char for data, # error + sou
              else
                read(line(51:83),*,err=100)alpha(i),beta(i),gamma(i),
      #       var_rate(i)
+c      Close the fixed-form branch selecting the reaction-file layout.
+             endif
              read(line(87:108),1010,err=100)iwk1,iwk2,tkcode(i), ! @Arturo is this deprecated?
      #       lerror(i),ksource(i)
              read(line(111:256),'(a146)',err=100)comment(i)

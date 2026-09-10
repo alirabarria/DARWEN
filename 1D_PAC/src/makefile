@@ -32,6 +32,4 @@ $(EXEC) : $(OBJECTS) $(COMMON)
 	$(FC) $(FFLAGS) $(OBJECTS) -o $(BINDIR)/$(EXEC)
 
 clean:
-	rm *.o
-	rm *.mod
-	rm $(EXEC)
+	rm -f *.o *.mod $(EXEC)

@@ -395,7 +395,8 @@ c    --------------------------------------------------------------------------
 c
 c      Sensitivity analysis and reduction @Arturo
 c
-      integer irate,sensi,stsensi,endsensi,rvirate,nout,errflag,max_nout
+      integer irate,sensi,stsensi,endsensi,rvirate,nout
+     # ,errflag,max_nout,read_varch
       logical change_rate,first_vary,writekrate
       real*8 drate,diff_ctbn(nmaxspec,nmaxz),chem_ctbn(nmaxspec,nmaxz)
       character reacs(nmaxreac)*130
@@ -408,9 +409,11 @@ c      rvirate:    reverse reaction rate of irate if there is one
 c      stsensi:   which rate index should start the variation in case sensi=2
 c      endsensi:  which rate index should end the variation in case sensi=2
 c      drate:     how much should the rate constant be varied
-       common/isensi/irate,sensi,stsensi,endsensi,rvirate,nout,errflag,
+c      read_varch is an integer flag and belongs only to /isensi/.
+c      It is kept out of /lsensi/ to avoid two COMMON blocks.
+      common/isensi/irate,sensi,stsensi,endsensi,rvirate,nout,errflag,
      # max_nout,read_varch
-       common/lsensi/change_rate,first_vary,writekrate,read_varch
+      common/lsensi/change_rate,first_vary,writekrate
        common/rsensi/drate,diff_ctbn,chem_ctbn
        common/charsensi/reacs
 

@@ -56,7 +56,7 @@
      # '                        Exiting PAC                      ',/,
      # '---------------------------------------------------------',/)
 
-1020   format(1x,'           Calculations date: ',i2,'/'i2,'/',i4 )
+1020   format(1x,'           Calculations date: ',i2,'/',i2,'/',i4 )
 
 
 1111   format(1pg12.4)
